@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <title>Redmine: Custom Queries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <LINK REL="SHORTCUT ICON" HREF="">
+    <LINK REL="StyleSheet" HREF="css/main.css" TYPE="text/css">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+
+    
+    <!-- Libs -->
+    <script src="jquery/jquery-1.9.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>   
+
+
+    <!-- custom -->
+    <script type="text/javascript" language="javascript" src="jscode/settings.js"></script>
+
+    <script type="text/javascript" language="javascript" src="jscode/page/appController.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/page/appAlert.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/page/appProgressBar.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/page/appView.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/data/dataController.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/page/appMonitor.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/page/appModel.js"></script>
+
+    <script type="text/javascript" language="javascript" src="jscode/main.js"></script>
+
+<!--     <meta name="google-translate-customization" content="89b98e60eb24d589-8dd4afd7d1ecbab8-ge6aa72a1a6517bd2-16"></meta>
+ -->
+  </head>
+  
+  <body onload="app.eventHandler.onBodyLoad();">
+
+    <div class="navbar navbar-fixed-top navbar-inverse">  
+      <div class="navbar-inner">  
+        <div class="container-fluid">  
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li classz="active">
+                <a href="#" onclick="app.loadData();">Load All</a>
+              </li>
+              <li classz="active">
+                <a href="#" onclick="app.debugEvent();">Debug event</a>
+              </li>           
+           </ul>
+         </div>
+
+<!--         <div id="google_translate_element"></div><script type="text/javascript">
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+        }
+        </script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+
+        </div>  
+      </div>  
+    </div>   
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span8">
+          <div id="sysMessages">
+          </div>
+        </div>
+
+      </div>
+
+
+
+      <div class="row-fluid">
+        <div class="span8">
+          <div class="wellx well-small" id="summaryDiv">
+          </div>
+        </div>
+
+        <div class="span4 wellx well-small" id="rightPane">
+          <div id="statusMessages">
+          </div>
+
+<!--           <div id="progressBar" class="progress progress-striped active hide">
+            <div class="bar" style="width: 0%"></div>
+          </div>
+ -->
+
+
+        </div>
+      </div>
+    </div>
+    
+
+
+  </body>
+</html>
