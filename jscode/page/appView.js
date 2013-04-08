@@ -2,15 +2,9 @@ function AppView(appEventHandler){
 
 	var self = this;
 
-
-
-	this.initialLoadAlert = new AppAlert('sysMessages', 'initialLoadAlert');
-	this.requestStatusAlert = new AppAlert('statusMessages', 'customRequestAlert');
-
+	this.initialLoadAlert    = new AppAlert('sysMessages', 'initialLoadAlert');
+	this.requestStatusAlert  = new AppAlert('statusMessages', 'customRequestAlert');
 	this.requestsProgressBar = new ProgressBar('statusMessages', 'requestsProgressBar');
-
-
-
 
 
 // ===========================================================================================

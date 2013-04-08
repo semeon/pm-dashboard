@@ -77,18 +77,31 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 
-	// -------------------------------------------------------------------------------------------
-	// PRIVATE
-	// -------------------------------------------------------------------------------------------
+// ===========================================================================================
+// PRIVATE
+// ===========================================================================================
 
 	// Auto update 
 	function autoRefresh() {
 		setInterval(autoRefresh, 60000);
 	}
 
+
+	// -------------------------------------------------------------------------------------------
+	// Update custom query results
+	// -------------------------------------------------------------------------------------------
 	function updateProjectSummaryBlank (project) {
 		var queriesNumber = project.queryTitles.length;
 		var versionsNumber = project.versions.length;
+
+		function processRequestResult (data, requestParams) {
+			var linkHref =  redmineSettings.redmineUrl + 
+							redmineSettings.issuesRequestUrl +
+							'?query_id=' + requestParams.query_id + 
+							'&project_id=' + requestParams.project_id;
+			self.appView.showQueryResult(requestParams.query_id, data.total_count, linkHref);
+		}
+
 
 		for(var v=0; v<versionsNumber; v++) {
 			var versionObj = project.versions[v];
@@ -97,12 +110,18 @@ function AppController(userSettings, appSettings, redmineSettings){
 			for(var q=0; q<queriesNumber; q++) {
 				var queryId = queries[q];
 				if (queryId != undefined) {
-					self.dataController.getQueryResult(project.id, queryId);
+					self.dataController.getQueryResult(project.id, queryId, processRequestResult);
 				}
 			}
 		}
 	}
+	// -------------------------------------------------------------------------------------------
 
+
+
+	// -------------------------------------------------------------------------------------------
+	// Create blank custom query table
+	// -------------------------------------------------------------------------------------------
 	function createProjectSummaryBlank (project) {
 		self.appView.createProjectSummary(project.id, project.title, project.queryTitles);
 
@@ -117,6 +136,9 @@ function AppController(userSettings, appSettings, redmineSettings){
 			}
 		}    
 	}
+	// -------------------------------------------------------------------------------------------
+
+
 
 
 	// DEBUG
@@ -125,14 +147,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 
 	this.debugEvent = function() {
-
 		getQueryResult('isori', '461');
 	}
-
-
-
-
-
-
 
 }
