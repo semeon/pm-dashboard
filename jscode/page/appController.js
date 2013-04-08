@@ -28,6 +28,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	$(document).ajaxStart(
 		function() {
 			if (initialLoad) {
+				self.appMonitor.runMonitor();
 				self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
 			}
 		}
@@ -47,7 +48,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 					createProjectSummaryBlank(userSettings.projects[p]);
 				}
 
-				self.appMonitor.runMonitor();
+				// self.appMonitor.runMonitor();
 			}
 		}
 	);

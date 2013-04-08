@@ -126,45 +126,35 @@ function DataController(userSettings, appSettings, redmineSettings){
 				for(var i=0; i<group.includes.length; i++) {
 					var sId = group.includes[i];
 
-					if (sId == 3 ) {
+					var currentGroup = group;
+					// http://dintrsrv01.domain.corp/projects/isori/issues.json?
+					// fixed_version_id=340
+					// status_id=5
+					// key=2da4605ebea54748909b946d3c9d2bd5c04c4837&limit=100
+					var requestUrl =  	redmineSettings.redmineUrl + 
+										redmineSettings.projectDataUrl + 
+										project.id + '/' +
+										redmineSettings.issuesRequestUrl + 
+										redmineSettings.jsonRequestModifier;
 
-						// http://dintrsrv01.domain.corp/projects/isori/issues.json?
-						// fixed_version_id=340
-						// status_id=5
-						// key=2da4605ebea54748909b946d3c9d2bd5c04c4837&limit=100
-						var requestUrl =  	redmineSettings.redmineUrl + 
-											redmineSettings.projectDataUrl + 
-											project.id + '/' +
-											redmineSettings.issuesRequestUrl + 
-											redmineSettings.jsonRequestModifier;
+					var requestParams = {
+						fixed_version_id: version.id,
+						status_id: 	sId
+					};
 
-						var requestParams = {
-							fixed_version_id: version.id,
-							status_id: 	sId
-						};
 
-						// alert(requestUrl);
+					alert('REQUESTING: ' + group.title + ': ' + group.includes);
 
- 						var aaa = sId;
-
-						alert('REQUESTING: ' + group.title + ': ' + group.includes);
-
-						// request issues of particular id
-						genericRequest( requestUrl,
-										requestParams, 
-										function (data) {
-											processIssues(data, 
-														  group, 
-														  requestUrl, 
-														  requestParams,
-														  version
-														  );
-										});
-					}
+					// request issues of particular id
+					genericRequest( requestUrl,
+									requestParams, 
+									function (data) {
+										processIssues(data, currentGroup);
+									});
 				}
 			}
 
-			function processIssues(data, group, requestUrl, requestParams, ver) {
+			function processIssues(data, currentGroup) {
 				// alert('Happines!');
 				if (data.total_count > redmineSettings.responseLimit) {
 					alert('Warning! Redmine response limit is exceeded.' +
@@ -177,19 +167,17 @@ function DataController(userSettings, appSettings, redmineSettings){
 
 				if (data.total_count > 0) {
 					alert(
-							'group.title: ' + group.title + 
-							'\n' + 'group.includes: ' + group.includes[0] + 
-							'\n' + 'requestUrl ' + 			requestUrl +
-							'\n' + 'fixed_version_id: ' + 	requestParams.fixed_version_id +
-							'\n' + 'status_id: ' + 			requestParams.status_id +
-							'\n' + 'total_count: ' + data.total_count +
+							'\n' + 'group.title: ' + 		currentGroup.title + 
+							'\n' + 'group.includes: ' + 	currentGroup.includes[0] + 
 							// '\n' + version.id + ' | ' + vStatus.title + ' (' + stId + ')' + 
 						  	'\n#1: ' + data.issues[0].id + ' | ' + data.issues[0].subject + ' | ' + 
 							data.issues[0].status.name + ' (' + data.issues[0].status.id + ')'
 						);
 				}
 
-				group.issues = data.issues;
+				currentGroup.issues = data.issues;
+				var a = 1;
+
 			}
 
 		}
