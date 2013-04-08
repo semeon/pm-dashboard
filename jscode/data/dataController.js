@@ -87,7 +87,9 @@ function DataController(userSettings, appSettings, redmineSettings){
 
 			for (var v=0; v<data.total_count; v++) {
 				var version = data.versions[v];
-				project.versions[version.id] = version;
+				if (version.status != 'closed') {
+					project.versions[version.id] = version;
+				}
 			}
 
 			self.dataModel.projectList[projectId] = project;

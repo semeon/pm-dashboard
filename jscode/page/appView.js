@@ -52,11 +52,11 @@ function AppView(appEventHandler){
 	var permanotice;
 
 	this.showAlert = function(title, text, type) {
-			$.pnotify({
-				title: title,
-				text: text,
-				type: type
-			});
+		$.pnotify({
+			title: title,
+			text: text,
+			type: type
+		});
 	}
 
 	this.showPermanotice = function(title, text, type) {
@@ -71,6 +71,7 @@ function AppView(appEventHandler){
 		        hide: false,
 		        closer: false,
 		        sticker: false,
+
 		        history: false
 		    });
 		}

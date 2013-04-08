@@ -3,6 +3,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 	var self = this;
 	var initialLoad = true;
 
+	this.eventHandler = {};
+
 	this.dataController = new DataController(userSettings, appSettings, redmineSettings);
 	this.appView = new AppView(self.eventHandler);
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
@@ -12,7 +14,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 	// Event Handlers
 	// -------------------------------------------------------------------------------------------
-	this.eventHandler = {};
 
 	this.eventHandler.onBodyLoad = function() {
 		// self.appMonitor.runMonitor();
@@ -27,8 +28,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	$(document).ajaxStart(
 		function() {
 			if (initialLoad) {
-				// self.appView.initialLoadAlert.show('Application is collecting data from Redmine...', 'info');
-				self.appView.showPermanotice('Loading...','Application is collecting data from Redmine...', 'info');
+				self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
 			}
 		}
 	);
@@ -38,11 +38,10 @@ function AppController(userSettings, appSettings, redmineSettings){
 		function() {
 			if (initialLoad) {
 				initialLoad = false;
+				self.appView.removePermanotice();
 
 				// Start buildig standard summary
 				// displayStandardSummary(self.dataController.dataModel.projectList);
-
-				self.appView.removePermanotice();
 
 				for(var p=0; p<userSettings.projects.length; p++) {
 					createProjectSummaryBlank(userSettings.projects[p]);
