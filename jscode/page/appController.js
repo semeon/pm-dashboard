@@ -1,25 +1,22 @@
 function AppController(userSettings, appSettings, redmineSettings){
 
 	var self = this;
+	var initialLoad = true;
 
-	this.eventHandler = {};
-	this.dataController = new DataController();
+	this.dataController = new DataController(userSettings, appSettings, redmineSettings);
 	this.appView = new AppView(self.eventHandler);
-	this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
+	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
 	this.appMonitor = new AppMonitor(self.appView, self.dataController, self.dataModel);
 
-	this.dataLoaded = false;
 
 
 	// Event Handlers
 	// -------------------------------------------------------------------------------------------
+	this.eventHandler = {};
 
 	this.eventHandler.onBodyLoad = function() {
-		// for(var p=0; p<userSettings.projects.length; p++) {
-		// 	createProjectSummaryBlank(userSettings.projects[p]);
-		// }
 		// self.appMonitor.runMonitor();
-		self.appView.initialLoadAlert.show('Application is collecting data from Redmine...', 'info');
+		self.dataController.startInitialDataLoad();
 	}
 
 	this.eventHandler.onProjectSummaryRefreshBtnClick = function(projectId) {
@@ -27,15 +24,25 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.refreshQueries(projectId);
 	}
 
+	$(document).ajaxStart(
+		function() {
+			if (initialLoad) {
+				// self.appView.initialLoadAlert.show('Application is collecting data from Redmine...', 'info');
+				self.appView.showPermanotice('Loading...','Application is collecting data from Redmine...', 'info');
+			}
+		}
+	);
+
+
 	$(document).ajaxStop(
 		function() {
-			if (!self.dataLoaded) {
-				self.dataLoaded = true;
+			if (initialLoad) {
+				initialLoad = false;
 
 				// Start buildig standard summary
-				// displayStandardSummary(self.dataModel.projectList);
+				// displayStandardSummary(self.dataController.dataModel.projectList);
 
-				self.appView.initialLoadAlert.hide(true);
+				self.appView.removePermanotice();
 
 				for(var p=0; p<userSettings.projects.length; p++) {
 					createProjectSummaryBlank(userSettings.projects[p]);
@@ -47,18 +54,19 @@ function AppController(userSettings, appSettings, redmineSettings){
 	);
 
 
+	// -------------------------------------------------------------------------------------------
 	// PUBLIC
 	// -------------------------------------------------------------------------------------------
 
-	this.loadData = function() {
-		// alert('Loading app...');
-		var projectsNumber = userSettings.projects.length;
-		self.dataController.totalRequestCounter = 0;
+	// this.loadData = function() {
+	// 	// alert('Loading app...');
+	// 	var projectsNumber = userSettings.projects.length;
+	// 	self.dataController.totalRequestCounter = 0;
 
-		for(var p=0; p<projectsNumber; p++) {
-			updateProjectSummaryBlank(userSettings.projects[p]);
-		}
-	}
+	// 	for(var p=0; p<projectsNumber; p++) {
+	// 		updateProjectSummaryBlank(userSettings.projects[p]);
+	// 	}
+	// }
 
 	this.refreshQueries = function(projectId) {
 		for(var p=0; p<userSettings.projects.length; p++) {
@@ -70,58 +78,13 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 
-
+	// -------------------------------------------------------------------------------------------
 	// PRIVATE
 	// -------------------------------------------------------------------------------------------
 
 	// Auto update 
 	function autoRefresh() {
 		setInterval(autoRefresh, 60000);
-	}
-
-	// Request and proccess project's version list 
-	function getVersionList(projectId) {
-		var requestUrl =  redmineSettings.redmineUrl + 
-											redmineSettings.projectDataUrl + projectId + '/' +
-											redmineSettings.versionsRequestUrl + 
-											redmineSettings.jsonRequestModifier;
-
-		// alert(requestUrl);
-
-		function processRequestResult(data, requestParams) {
-			alert(data);
-		}
-
-		self.dataController.genericRequest(	requestUrl, 
-																				{
-																					key: redmineSettings.userKey
-																				},
-																				processRequestResult
-																				); 
-	}
-
-	// Request and proccess redmine's query
-	function getQueryResult(projectId, queryId) {
-		var requestUrl =  redmineSettings.redmineUrl + 
-											redmineSettings.issuesRequestUrl + 
-											redmineSettings.jsonRequestModifier;
-
-		function processRequestResult (data, requestParams) {
-			var linkHref =  redmineSettings.redmineUrl + 
-											redmineSettings.issuesRequestUrl +
-											'?query_id=' + requestParams.query_id + 
-											'&project_id=' + requestParams.project_id;
-			self.appView.showQueryResult(requestParams.query_id, data.total_count, linkHref);
-		}
-
-		self.dataController.genericRequest( userSettings.queryURL + '.json', 
-																				{
-																					project_id: projectId,
-																					query_id: queryId,
-																					key: redmineSettings.userKey
-																				},
-																				processRequestResult
-																				 ); 
 	}
 
 	function updateProjectSummaryBlank (project) {
@@ -135,7 +98,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 			for(var q=0; q<queriesNumber; q++) {
 				var queryId = queries[q];
 				if (queryId != undefined) {
-					getQueryResult(project.id, queryId);
+					self.dataController.getQueryResult(project.id, queryId);
 				}
 			}
 		}
