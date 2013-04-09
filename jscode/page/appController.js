@@ -29,7 +29,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 		function() {
 			if (initialLoad) {
 				self.appMonitor.runMonitor();
-				self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
+				// self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
+				self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
 			}
 		}
 	);

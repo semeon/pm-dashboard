@@ -49,7 +49,8 @@ function AppView(appEventHandler){
 		$.pnotify({
 			title: title,
 			text: text,
-			type: type
+			type: type,
+		    history: false
 		});
 	}
 
@@ -72,7 +73,7 @@ function AppView(appEventHandler){
 	}
 
 	this.removePermanotice = function(title, text, type) {
-		if (permanotice.pnotify_remove) permanotice.pnotify_remove();
+		if (permanotice && permanotice.pnotify_remove) permanotice.pnotify_remove();
 	}
 
 // ===========================================================================================

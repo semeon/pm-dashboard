@@ -42,146 +42,114 @@ function DataController(userSettings, appSettings, redmineSettings){
 // ========================================================================================================
 
 
-	// --------------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
 	function loadProjectData(userProject) {
 		getVersionList(userProject);
 
+	}//----------------------------------------------------------------------------------------------------
 
 
-	    // Load issues by status
-
-	    // Assign issues groups to versions
-	}
-
-
- 	// --------------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
 	function getVersionList(userProject) {
-
 	    var requestUrl =  redmineSettings.redmineUrl + 
 	                      redmineSettings.projectDataUrl + 
 	                      userProject.id + '/' +
 	                      redmineSettings.versionsRequestUrl + 
 	                      redmineSettings.jsonRequestModifier;
+	    // Request
+		genericRequest( requestUrl, {}, processVersions);  
 
-		genericRequest( requestUrl, 
-						{}, 
-						processVersions);  
-
+		// Response processing
 	    function processVersions(data) {
 			var project = {};	  
+			self.dataModel.projects[userProject.id] = project;
+
 			project.id = userProject.id;
 			project.versions = {};
+
 			if (data.total_count > redmineSettings.responseLimit) {
-			alert('Warning! Redmine response limit is exceeded.' +
-			      '\nRequested items count: ' + data.total_count + '.' +
-			      '\nLimit: ' + redmineSettings.responseLimit + '.'
-			      );
+				alert('Warning! Redmine response limit is exceeded.' +
+				      '\nRequested items count: ' + data.total_count + '.' +
+				      '\nLimit: ' + redmineSettings.responseLimit + '.'
+				      );
 			}
 
-			for (var v=0; v<data.total_count; v++) {
+			for (var v=0; v<data.versions.length; v++) {
 				var version = data.versions[v];
 
 				if (version.status != 'closed') {
-					project.versions[String(version.id)] = version; // add 'v' before ver.id ? 
-					// var  userStatuses = userProject.customStatuses;
-					// version.userStatuses = userProject.customStatuses;
-				
+					project.versions[String(version.id)] = version;
 					version.issueGroups = {};
-					// call create statuses
-
-					// createIssueStatuses(userProject, version);
-					for (var i=0; i<userProject.customStatuses.length; i++){
-						var issueGroupTitle = userProject.customStatuses[i].title;
-						// alert('issueGroupTitle: ' + issueGroupTitle);
-						version.issueGroups[issueGroupTitle] = userProject.customStatuses[i];
-					}
 
 					// fill statuses with issues
-					getIssueList(project, version);
+					getIssuesCount(project, version.issueGroups, userProject.customStatuses, version.id);
 
+					var d = 1;
 				}
 			}
-			self.dataModel.projects[userProject.id] = project;
-
+			
 	    }
 
-	}
- 	// --------------------------------------------------------------------------------------------------------
-		// function createIssueStatuses(userProject, version) {
-		// 	var userStatuses = userProject.customStatuses;
-		// 	for (var i=0; i<userStatuses.length; i++){
-		// 		version.statuses[userStatuses[i].title] = userStatuses[i];
-		// 	}
-		// }
-	 	// --------------------------------------------------------------------------------------------------------
-		function getIssueList(project, version) {
+	}//----------------------------------------------------------------------------------------------------
 
-			for (var issueGroupName in version.issueGroups) {
-				// alert(version.id + ' ' + issueGroup);
-				var group = version.issueGroups[issueGroupName];
+ 	// ----------------------------------------------------------------------------------------------------
+	function getIssuesCount(project, issueGroups, customStatuses, verId) {
 
-				// alert(group.title + ': ' + group.includes);
+		var requestUrl =  	redmineSettings.redmineUrl + redmineSettings.projectDataUrl + 
+							project.id + '/' + redmineSettings.issuesRequestUrl + 
+							redmineSettings.jsonRequestModifier;
 
-				// get status IDs
-				for(var i=0; i<group.includes.length; i++) {
-					var sId = group.includes[i];
+		for (var i=0; i<customStatuses.length; i++){
+			var issueGroupTitle = customStatuses[i].title;
+			issueGroups[customStatuses[i].title] = {};
 
-					var currentGroup = group;
-					// http://dintrsrv01.domain.corp/projects/isori/issues.json?
-					// fixed_version_id=340
-					// status_id=5
-					// key=2da4605ebea54748909b946d3c9d2bd5c04c4837&limit=100
-					var requestUrl =  	redmineSettings.redmineUrl + 
-										redmineSettings.projectDataUrl + 
-										project.id + '/' +
-										redmineSettings.issuesRequestUrl + 
-										redmineSettings.jsonRequestModifier;
+			var group = issueGroups[issueGroupTitle];
+			issueGroups[issueGroupTitle].count = 0;
+			issueGroups[issueGroupTitle].ver = verId;
+			issueGroups[issueGroupTitle].title = issueGroupTitle;
+			issueGroups[issueGroupTitle].includes = customStatuses[i].includes;
 
-					var requestParams = {
-						fixed_version_id: version.id,
-						status_id: 	sId
-					};
+			for (var j=0; j<issueGroups[issueGroupTitle].includes.length; j++) {
+				var requestParams = {
+					fixed_version_id: 	verId,
+					status_id: 			issueGroups[issueGroupTitle].includes[j],
+					
+					// not for request, just for passing to callback (can't pass another way for some reason)
+					project_id: 		project.id,        	
+					issue_group_name: 	issueGroupTitle
+				};
 
+				// console.log(group);
+				// console.log(group.includes[j]);
+				// Request
+				genericRequest( requestUrl, 
+								requestParams, 
+								function (data) {
+									processIssuegroupResponse(data, requestParams, issueGroups[issueGroupTitle]);
+								});
 
-					alert('REQUESTING: ' + group.title + ': ' + group.includes);
-
-					// request issues of particular id
-					genericRequest( requestUrl,
-									requestParams, 
-									function (data) {
-										processIssues(data, currentGroup);
-									});
-				}
+				text = 'Flow my tears, developer said';
 			}
+		}
 
-			function processIssues(data, currentGroup) {
-				// alert('Happines!');
-				if (data.total_count > redmineSettings.responseLimit) {
-					alert('Warning! Redmine response limit is exceeded.' +
-					      '\nRequested items count: ' + data.total_count + '.' +
-					      '\nLimit: ' + redmineSettings.responseLimit + '.'
-					      );
-				}				
+		// Response processing
+		function processIssuegroupResponse(responseData, rp, gr) {
+			// self.dataModel.projects[rp.project_id].versions[String(rp.fixed_version_id)].issueGroups[rp.issue_group_name].count += responseData.total_count;
 
-				var a = 2;
-
-				if (data.total_count > 0) {
-					alert(
-							'\n' + 'group.title: ' + 		currentGroup.title + 
-							'\n' + 'group.includes: ' + 	currentGroup.includes[0] + 
-							// '\n' + version.id + ' | ' + vStatus.title + ' (' + stId + ')' + 
-						  	'\n#1: ' + data.issues[0].id + ' | ' + data.issues[0].subject + ' | ' + 
-							data.issues[0].status.name + ' (' + data.issues[0].status.id + ')'
-						);
-				}
-
-				currentGroup.issues = data.issues;
-				var a = 1;
-
-			}
+			console.log('Response for: ');
+			console.log('Ver:' +rp.fixed_version_id);
+			console.log(gr);
+			console.log(gr);
+			console.log(gr);
+			console.log(gr.count + ' before');
+			gr.count += responseData.total_count;
+			console.log(gr.count + ' after');
 
 		}
-	 	// --------------------------------------------------------------------------------------------------------
+
+	} // --------------------------------------------------------------------------------------------------
+
+
 
 
 
