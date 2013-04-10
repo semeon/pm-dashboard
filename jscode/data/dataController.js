@@ -1,4 +1,4 @@
-function DataController(userSettings, appSettings, redmineSettings){
+function DataController(userSettings, appSettings, redmineSettings, eventHandler){
 
 	var self = this;
 
@@ -100,56 +100,58 @@ function DataController(userSettings, appSettings, redmineSettings){
 							redmineSettings.jsonRequestModifier;
 
 		for (var i=0; i<customStatuses.length; i++){
-			var issueGroupTitle = customStatuses[i].title;
-			issueGroups[customStatuses[i].title] = {};
+			var issueGroup = {};
 
-			var group = issueGroups[issueGroupTitle];
-			issueGroups[issueGroupTitle].count = 0;
-			issueGroups[issueGroupTitle].ver = verId;
-			issueGroups[issueGroupTitle].title = issueGroupTitle;
-			issueGroups[issueGroupTitle].includes = customStatuses[i].includes;
+			issueGroups[customStatuses[i].title] = issueGroup;
+			issueGroup.count = 0;
+			issueGroup.title = customStatuses[i].title;
+			issueGroup.ver = verId;
+			issueGroup.includes = customStatuses[i].includes;
 
-			for (var j=0; j<issueGroups[issueGroupTitle].includes.length; j++) {
+			sendIssueGroupRequests (project, issueGroup, customStatuses);
+		}
+
+		function sendIssueGroupRequests (project, group, customStatuses) {
+			var standardStatuses = group.includes;
+
+			for (var j=0; j<standardStatuses.length; j++) {
 				var requestParams = {
-					fixed_version_id: 	verId,
-					status_id: 			issueGroups[issueGroupTitle].includes[j],
-					
-					// not for request, just for passing to callback (can't pass another way for some reason)
-					project_id: 		project.id,        	
-					issue_group_name: 	issueGroupTitle
+					fixed_version_id: 	group.ver,
+					status_id: 			standardStatuses[j],
 				};
 
-				// console.log(group);
-				// console.log(group.includes[j]);
 				// Request
 				genericRequest( requestUrl, 
 								requestParams, 
 								function (data) {
-									processIssuegroupResponse(data, requestParams, issueGroups[issueGroupTitle]);
+									processIssuegroupResponse(data, group);
 								});
-
-				text = 'Flow my tears, developer said';
 			}
 		}
-
+		
 		// Response processing
-		function processIssuegroupResponse(responseData, rp, gr) {
-			// self.dataModel.projects[rp.project_id].versions[String(rp.fixed_version_id)].issueGroups[rp.issue_group_name].count += responseData.total_count;
+		function processIssuegroupResponse(responseData, gr) {
+			// console.log('Response processing..  Ver:' +gr.ver);
+			// console.log(gr);
+			// console.log('Response data: ');
+			// console.log(responseData);
+			// console.log('Issues to add: ');
+			// console.log(responseData.total_count);
 
-			console.log('Response for: ');
-			console.log('Ver:' +rp.fixed_version_id);
-			console.log(gr);
-			console.log(gr);
-			console.log(gr);
-			console.log(gr.count + ' before');
-			gr.count += responseData.total_count;
-			console.log(gr.count + ' after');
+			if (responseData.total_count || responseData.total_count == 0) {
+				gr.count += responseData.total_count;
+
+			} else if (responseData.error) { 
+				eventHandler.dataLoadErrorOccured(responseData.error);
+
+			} else {
+				eventHandler.genericErrorOccured('AJAX Data load');
+			}
 
 		}
 
+
 	} // --------------------------------------------------------------------------------------------------
-
-
 
 
 

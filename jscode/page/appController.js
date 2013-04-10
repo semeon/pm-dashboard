@@ -5,7 +5,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 	this.eventHandler = {};
 
-	this.dataController = new DataController(userSettings, appSettings, redmineSettings);
+	this.dataController = new DataController(userSettings, appSettings, redmineSettings, self.eventHandler);
 	this.appView = new AppView(self.eventHandler);
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
 	this.appMonitor = new AppMonitor(self.appView, self.dataController, self.dataModel);
@@ -25,6 +25,20 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.refreshQueries(projectId);
 	}
 
+	this.eventHandler.dataLoadErrorOccured = function (error) {
+		var message = error.message + ' (' + error.code + ').';
+		self.appView.showAlert('Error', message, 'error')
+	}
+
+	this.eventHandler.genericErrorOccured = function (text) {
+		var message = 'Unexpected error occure. Beware.';
+		if (text) {
+			message = text + ': ' + message;
+		}
+		self.appView.showAlert('Error', message, 'error')
+	}
+
+
 	$(document).ajaxStart(
 		function() {
 			if (initialLoad) {
@@ -34,7 +48,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 			}
 		}
 	);
-
 
 	$(document).ajaxStop(
 		function() {
@@ -53,6 +66,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 			}
 		}
 	);
+
+
 
 
 	// -------------------------------------------------------------------------------------------
