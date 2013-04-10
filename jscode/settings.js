@@ -1,5 +1,7 @@
 function Settings() {
 
+	var self = this;
+
 	this.userSettings = {
 	    queryURL: 'http://dintrsrv01.domain.corp/issues',
 	    userKey: '2da4605ebea54748909b946d3c9d2bd5c04c4837',
@@ -49,31 +51,47 @@ function Settings() {
 				{title: 'Blocked', 		includes: [4, 14]},
 				{title: 'Done', 		includes: [5]}
 			]
-
 	      }
-	  //     ,
-	  //     { id: 'rsalfr',
-	  //       title: 'RS Alfresco',
+	      ,
+
+	      { id: 'rsalfr',
+	        title: 'RS Alfresco',
+	        queryTitles: ['Total' ],
+	        versions: [
+	          { version: '2.0', 
+	            queries: ['435']
+	          },
+	          { version: '3.0', 
+	            queries: ['434']
+	          }
+	        ],
+			issueTrackers: ['Bug', 'Feature', 'Question'],
+			customStatuses: [
+				{title: 'Development', 	includes: [1, 2]},
+				{title: 'Testing', 		includes: [3, 6, 18, 19]},
+				{title: 'Blocked', 		includes: [4, 14]},
+				{title: 'Done', 		includes: [5]}
+			]
+	      }
+	      ,
+
+	  //     { id: 'fpkloyalwebsrv',
+	  //       title: 'Test Project Title',
 	  //       queryTitles: ['Total' ],
-	  //       versions: [
-	  //         { version: '2.0', 
-	  //           queries: ['435']
-	  //         },
-	  //         { version: '3.0', 
-	  //           queries: ['434']
-	  //         }
-	  //       ],
+	  //       versions: [],
 			// issueTrackers: ['Bug', 'Feature', 'Question'],
 			// customStatuses: [
 			// 	{title: 'Development', 	includes: [1, 2]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
-			// 	{title: 'Blocked', 		includes: [4, 14]},
 			// 	{title: 'Done', 		includes: [5]}
 			// ]
 	  //     }
+	      
+
+
 	    ],
 	    
     },
+
 
 	this.appSettings = {
 		appStatus: 'testing'
@@ -118,6 +136,20 @@ function Settings() {
 
 		jsonRequestModifier: '.json'
 	}
+
+	// -------------------------------------------------------------------
+	// Methods -----------------------------------------------------------
+	// -------------------------------------------------------------------
+	this.userSettings.getProjectSettingsById = function (projectId) {
+		for(var i=0; i<self.userSettings.projects.length; i++) {
+			if ( self.userSettings.projects[i].id == projectId ) {
+				return self.userSettings.projects[i];
+			}
+		}
+		return undefined;
+	}
+
+
 
 	// Full list of statuses:
 	// 'New', 'In Progress', 'Definition in Process', 'Resolved', 'Rejected', 'Final', 'Final - Estimated', 'Final - Signed',

@@ -68,6 +68,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			self.data.projects[userProject.id] = project;
 
 			project.id = userProject.id;
+			project.title = userProject.title;
 			project.versions = {};
 
 			if (data.total_count > redmineSettings.responseLimit) {

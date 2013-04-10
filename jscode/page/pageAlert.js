@@ -23,7 +23,7 @@ function AppAlert (rootId, id) {
 
     self.node.empty();
     if (type) {
-      self.node.removeClass('alert-error alert-success alert-info');
+      self.node.removeClass('alert-error alert-success alert-info alert-warning');
       self.node.addClass('alert-' + type);
     }
     self.node.append(text);
