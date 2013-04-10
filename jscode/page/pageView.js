@@ -1,4 +1,4 @@
-function AppView(appEventHandler){
+function AppView(appEventHandler, userSettings, appSettings, redmineSettings){
 
 	var self = this;
 
@@ -10,6 +10,26 @@ function AppView(appEventHandler){
 // ===========================================================================================
 // PUBLIC
 // ===========================================================================================
+
+	this.displayItem = function(selector) {
+		$(selector).removeClass('hide');
+	}
+
+	this.hideItem = function(selector) {
+		$(selector).addClass('hide');
+	}
+
+	this.listProjectsOnTheGreatingScreen = function() {
+		var projects = userSettings.projects;
+		var root =  $('#userProjectList');
+
+		var href = redmineSettings.redmineUrl + redmineSettings.projectsRequestUrl;
+
+		for (var i=0; i<projects.length; i++) {
+			href = href + '\\' + projects[i].id;
+			root.append('<li><a href="' + href + '" target="_blank">' + projects[i].title + '</li>');
+		}
+	}
 
 	// Project Summary
 	this.createProjectSummary = function(projectId, projectTitle, queryTitles) {

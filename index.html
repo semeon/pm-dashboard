@@ -61,6 +61,28 @@
       <div class="row-fluid">
         <div class="span8">
           <div class="wellx well-small" id="summaryDiv">
+
+			<div class="hero-unit" id="greatingsMessage">
+				<h1>Greetings, human!</h1>
+				<br/>
+				<p>Click the button below to collect statistics for your projects:</p>
+				<ul id="userProjectList"></ul>
+				<br/>
+				<p>
+					<a 	href="#" 
+						class="btn btn-primary btn-large" 
+						onclick="app.eventHandler.startButtonClick();">Start loading »</a>
+				</p>
+			</div>
+
+			<div class="hero-unit hide" id="pleaseWaitMessage">
+				<h2>Please, wait!</h2>
+				<br/>
+				<p>Please wait for your project statistics to be loaded from Redmin. 
+					You can see the progress on the right side of the page.</p>
+			</div>
+
+
           </div>
         </div>
 

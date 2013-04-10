@@ -6,7 +6,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	this.eventHandler = {};
 
 	this.dataController = new DataController(userSettings, appSettings, redmineSettings, self.eventHandler);
-	this.appView = new AppView(self.eventHandler);
+	this.appView = new AppView(self.eventHandler, userSettings, appSettings, redmineSettings);
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
 	this.appMonitor = new AppMonitor(self.appView, self.dataController, self.dataModel);
 
@@ -14,10 +14,46 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 	// Event Handlers
 	// -------------------------------------------------------------------------------------------
+	$(document).ajaxStart(
+		function() {
+			if (initialLoad) {
+				self.appView.hideItem('#greatingsMessage');
+
+				self.appView.displayItem('#pleaseWaitMessage');
+				self.appMonitor.runMonitor();
+				// self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
+				self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
+			}
+		}
+	);
+
+	$(document).ajaxStop(
+		function() {
+			if (initialLoad) {
+				initialLoad = false;
+
+				self.appView.hideItem('#pleaseWaitMessage');
+
+				// Start buildig standard summary
+				// displayStandardSummary(self.dataController.dataModel.projectList);
+
+				for(var p=0; p<userSettings.projects.length; p++) {
+					createProjectSummaryBlank(userSettings.projects[p]);
+				}
+
+				// self.appMonitor.runMonitor();
+			}
+		}
+	);
+
+	this.eventHandler.startButtonClick = function() {
+		self.dataController.startInitialDataLoad();
+	}
 
 	this.eventHandler.onBodyLoad = function() {
 		// self.appMonitor.runMonitor();
-		self.dataController.startInitialDataLoad();
+
+		self.appView.listProjectsOnTheGreatingScreen();
 	}
 
 	this.eventHandler.onProjectSummaryRefreshBtnClick = function(projectId) {
@@ -39,32 +75,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 
-	$(document).ajaxStart(
-		function() {
-			if (initialLoad) {
-				self.appMonitor.runMonitor();
-				// self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
-				self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
-			}
-		}
-	);
-
-	$(document).ajaxStop(
-		function() {
-			if (initialLoad) {
-				initialLoad = false;
-
-				// Start buildig standard summary
-				// displayStandardSummary(self.dataController.dataModel.projectList);
-
-				for(var p=0; p<userSettings.projects.length; p++) {
-					createProjectSummaryBlank(userSettings.projects[p]);
-				}
-
-				// self.appMonitor.runMonitor();
-			}
-		}
-	);
 
 
 
