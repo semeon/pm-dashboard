@@ -2,11 +2,14 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 	var self = this;
 
-	this.dataModel = new DataModel(userSettings, appSettings, redmineSettings);
+	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings);
+	this.data = {};
+	self.data.projects = {};
 
 	this.prevRequestCounter = 0;
 	this.pendingRequestCounter = 0;
 	this.totalRequestCounter = 0;
+
 
 // ========================================================================================================
 // PUBLIC
@@ -62,7 +65,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		// Response processing
 	    function processVersions(data) {
 			var project = {};	  
-			self.dataModel.projects[userProject.id] = project;
+			self.data.projects[userProject.id] = project;
 
 			project.id = userProject.id;
 			project.versions = {};

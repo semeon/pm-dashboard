@@ -53,7 +53,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 		function() {
 			if (initialLoad) {
 				initialLoad = false;
-				self.appView.removePermanotice();
 
 				// Start buildig standard summary
 				// displayStandardSummary(self.dataController.dataModel.projectList);
