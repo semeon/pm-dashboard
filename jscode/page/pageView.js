@@ -11,8 +11,14 @@ function AppView(appEventHandler, userSettings, appSettings, redmineSettings){
 // PUBLIC
 // ===========================================================================================
 
+	this.switchFromGreatingsToPleaseWait = function() {
+		$('#greatingsMessage').addClass('hide');
+		$('#pleaseWaitMessage').removeClass('hide');
+	}
+
+
 	this.displayItem = function(selector) {
-		$(selector).removeClass('hide');
+		$(selector).fadeIn();
 	}
 
 	this.hideItem = function(selector) {

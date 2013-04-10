@@ -17,9 +17,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	$(document).ajaxStart(
 		function() {
 			if (initialLoad) {
-				self.appView.hideItem('#greatingsMessage');
-
-				self.appView.displayItem('#pleaseWaitMessage');
+				self.appView.switchFromGreatingsToPleaseWait();
 				self.appMonitor.runMonitor();
 				// self.appView.showPermanotice('Loading...','Application is collecting data from Redmine.', 'info');
 				self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
