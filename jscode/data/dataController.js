@@ -17,8 +17,10 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 	// --------------------------------------------------------------------------------------------------------
 	this.startInitialDataLoad = function() {
+		console.log('Starting startInitialDataLoad');
 		for(var p=0; p<userSettings.projects.length; p++) {
-			loadProjectData(userSettings.projects[p]);
+			console.log('Calling loadProjectData for ' + userSettings.projects[p].id);
+			loadProjectData(userSettings.projects[p].id);
 		}
 	}
 
@@ -38,6 +40,12 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
                         ); 
   }
 
+	// --------------------------------------------------------------------------------------------------------
+	this.reloadProductData = function(project) {
+		console.log('Calling reload project versions for ' + project.id);
+		loadVersions(project);
+	}
+
 
 
 // ========================================================================================================
@@ -46,30 +54,60 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 
 	//-----------------------------------------------------------------------------------------------------
-	function loadProjectData(userProject) {
-		getVersionList(userProject);
+	function loadProjectData(projectId) {
+		console.log('Starting getVersionList for ' + projectId);
+
+		var userProject = userSettings.getProjectSettingsById(projectId);
+
+		var dataProject = self.data.projects[userProject.id];
+
+		console.log('Cheking, if the project already exist');
+		if(dataProject == undefined) {
+			console.log(' - It doesn\'t, creating a new one.');
+			dataProject = {};
+			self.data.projects[userProject.id] = dataProject;
+
+			dataProject.id = userProject.id;
+			dataProject.title = userProject.title;
+			dataProject.versions = {};
+			dataProject.customStatuses = userProject.customStatuses;
+
+		} else {
+			console.log(' - It does, proceeding with it.');
+		}
+
+		console.log('Calling getVersionList for ' + dataProject.id);
+		loadVersions(dataProject);
 
 	}//----------------------------------------------------------------------------------------------------
 
 
 	//-----------------------------------------------------------------------------------------------------
-	function getVersionList(userProject) {
+	function loadVersions(project) {
+		console.log('Starting getVersionList for ' + project.id);
+
 	    var requestUrl =  redmineSettings.redmineUrl + 
 	                      redmineSettings.projectDataUrl + 
-	                      userProject.id + '/' +
+	                      project.id + '/' +
 	                      redmineSettings.versionsRequestUrl + 
 	                      redmineSettings.jsonRequestModifier;
+
+		console.log('Requesting versions for ' + project.id);
+
+		requestVersions(project, requestUrl);  
+
 	    // Request
-		genericRequest( requestUrl, {}, processVersions);  
+		function requestVersions (project, requestUrl) {
+			genericRequest( requestUrl, 
+							{}, 
+							function (data) {
+								processVersions(data, project);
+							});
+		}
 
 		// Response processing
-	    function processVersions(data) {
-			var project = {};	  
-			self.data.projects[userProject.id] = project;
-
-			project.id = userProject.id;
-			project.title = userProject.title;
-			project.versions = {};
+	    function processVersions(data, project) {
+			console.log('Starting procesing versions for ' + project.id);
 
 			if (data.total_count > redmineSettings.responseLimit) {
 				alert('Warning! Redmine response limit is exceeded.' +
@@ -86,7 +124,8 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 					version.issueGroups = {};
 
 					// fill statuses with issues
-					getIssuesCount(project, version.issueGroups, userProject.customStatuses, version.id);
+					getIssuesCount(	project, 
+									version);
 
 					var d = 1;
 				}
@@ -97,58 +136,87 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	}//----------------------------------------------------------------------------------------------------
 
  	// ----------------------------------------------------------------------------------------------------
-	function getIssuesCount(project, issueGroups, customStatuses, verId) {
+	function getIssuesCount(project, version, issueGroups, customStatuses, verId) {
 
 		var requestUrl =  	redmineSettings.redmineUrl + redmineSettings.projectDataUrl + 
 							project.id + '/' + redmineSettings.issuesRequestUrl + 
 							redmineSettings.jsonRequestModifier;
 
-		for (var i=0; i<customStatuses.length; i++){
+		for (var i=0; i<project.customStatuses.length; i++){
 			var issueGroup = {};
+			version.issueGroups[project.customStatuses[i].title] = issueGroup;
 
-			issueGroups[customStatuses[i].title] = issueGroup;
 			issueGroup.count = 0;
-			issueGroup.title = customStatuses[i].title;
-			issueGroup.ver = verId;
-			issueGroup.includes = customStatuses[i].includes;
+			issueGroup.title = project.customStatuses[i].title;
+			issueGroup.ver = version.id;
+			issueGroup.prId = project.id;
+			issueGroup.includes = project.customStatuses[i].includes;
+			issueGroup.requestCounter = 0;
 
-			sendIssueGroupRequests (project, issueGroup, customStatuses);
+			sendIssueGroupRequests (project, issueGroup);
 		}
 
-		function sendIssueGroupRequests (project, group, customStatuses) {
+		function sendIssueGroupRequests (project, group) {
 			var standardStatuses = group.includes;
-
 			for (var j=0; j<standardStatuses.length; j++) {
 				var requestParams = {
 					fixed_version_id: 	group.ver,
 					status_id: 			standardStatuses[j],
 				};
-
-				// Request
-				genericRequest( requestUrl, 
-								requestParams, 
-								function (data) {
-									processIssuegroupResponse(data, group);
-								});
+				sendIssueStatusRequest( requestUrl, requestParams, group);
 			}
 		}
 		
+		// Request
+		function sendIssueStatusRequest (requestUrl, requestParams, group) {
+
+			console.log('Requesting issues for project/version/group/status_id: ' + 
+						group.prId + '/' + 
+						group.ver + '/' + 
+						group.title + '/' +
+						requestParams.status_id
+						);
+
+			genericRequest( requestUrl, 
+							requestParams, 
+							function (data) {
+								processIssuegroupResponse(data, requestParams, group);
+							});
+		}
+
+
 		// Response processing
-		function processIssuegroupResponse(responseData, gr) {
-			// console.log('Response processing..  Ver:' +gr.ver);
-			// console.log(gr);
-			// console.log('Response data: ');
-			// console.log(responseData);
-			// console.log('Issues to add: ');
-			// console.log(responseData.total_count);
+		function processIssuegroupResponse(responseData, rp, gr) {
+
+			gr.requestCounter += 1;
+
 
 			if (responseData.total_count || responseData.total_count == 0) {
+				console.log('Processing issues for project/version/group/request#/status_id/result: ' + 
+							gr.prId + '/' + 
+							gr.ver + '/' + 
+							gr.title + '/' +
+							gr.requestCounter + '/' +
+							rp.status_id + '/' +
+							responseData.total_count
+							);
+
+				if (responseData.total_count>0) {
+					console.log('EXAMPLE: ' + responseData.issues[0].status.id + ' / ' + responseData.issues[0].status.name);
+				// if(gr.requestCounter == issueGroup.includes.length) {
+					eventHandler.onProjectDataUpdate(gr.prId, gr.ver, gr.title, gr.count);
+				// }
+				}
+
 				gr.count += responseData.total_count;
 
+
 			} else if (responseData.error) { 
+				console.log(error);
 				eventHandler.dataLoadErrorOccured(responseData.error);
 
 			} else {
+				console.log(error);
 				eventHandler.genericErrorOccured('AJAX Data load');
 			}
 

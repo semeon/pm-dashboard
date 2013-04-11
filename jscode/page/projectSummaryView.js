@@ -1,5 +1,6 @@
 function ProjectSummaryView ( pageView ) {
 
+    var self = this;
     var projectSummaryRootSelector = '#summaryDiv';
 
 
@@ -95,16 +96,29 @@ function ProjectSummaryView ( pageView ) {
 
             for (groupName in version.issueGroups) {
                 var group = version.issueGroups[groupName];
-                var selector = '#' + createNodeId(project.id, version.id, group.title);
+                // var selector = '#' + createNodeId(project.id, version.id, group.title);
 
-                var node = $('<span class="hide">' + group.count + '</span>');
-                $(selector).empty();
-                $(selector).append(node);
-                node.fadeIn();
+                // var node = $('<span class="hide">' + group.count + '</span>');
+                // $(selector).empty();
+                // $(selector).append(node);
+                // node.fadeIn();
+
+                self.updateCell(project.id, version.id, group.title, group.count);
             }
         }
     }
 
+    this.updateCell = function(projectId, versionId, groupName, newValue) {
+        var selector = '#' + createNodeId(projectId, versionId, groupName);
+
+        console.log('Updating cell ' + selector + ' with new value: ' +  newValue);
+
+        var node = $('<span class="hide">' + newValue + '</span>');
+        $(selector).empty();
+        $(selector).append(node);
+        node.fadeIn();
+
+    }
 
 // ===========================================================================================
 // PRIVATE

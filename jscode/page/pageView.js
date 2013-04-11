@@ -11,11 +11,11 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 	this.projectSummaryView = new ProjectSummaryView(self);
 
+// -------------------------------------------------------------------------------------------
+// Welcome screen
+// 
 
 
-// ===========================================================================================
-// PUBLIC
-// ===========================================================================================
 
 	this.switchFromGreatingsToPleaseWait = function() {
 		$('#greatingsMessage').addClass('hide');
@@ -44,44 +44,9 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	}
 
 
-
-
-
-
-
-
-	// Project Summary
-	this.createProjectSummary = function(projectId, projectTitle, queryTitles) {
-		createProjectControlsNode(projectId);
-		createProjectTableHeader(projectId, projectTitle);
-		createProjectTableNode(projectId, queryTitles);
-	}
-
-	this.createProjectTableRowNode = function(projectId, version) {
-		var root = $('#summary_' + projectId);
-		var trNode = $('<tr id="queryRow_' + projectId + '_' + version + '"><th>' + version + '</th></tr>');
-		root.append(trNode);
-		return trNode;
-	}
-
-	this.appendQueryResultNode = function(root, projectId, version, queryId) {
-		var tdNode = $('<td id="queryResult_' + queryId +'"></td>');
-		root.append(tdNode);
-	}
-
-	this.showQueryResult = function(queryId, queryResult, url) {
-		$('#queryResult_' + queryId).empty();
-
-		var node = $('<a href="' + url + '" target="_blank" class="hide">' + queryResult + '</a>');
-
-		$('#queryResult_' + queryId).append(node);
-		node.fadeIn(600);
-	}
-
-
-	// System messages
-	// -------------------------------------------------------------------------------------------
-
+// -------------------------------------------------------------------------------------------
+// Popup messages
+// 
 	var permanotice;
 
 	this.showAlert = function(title, text, type) {
@@ -115,14 +80,37 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 		if (permanotice && permanotice.pnotify_remove) permanotice.pnotify_remove();
 	}
 
-// ===========================================================================================
-// PRIVATE
-// ===========================================================================================
 
+// --------------------------------------------------------
+// OLD CUSTOM SUMMARY - to reuse for custom stats
+//
+	// Project Summary
+	this.createProjectSummary = function(projectId, projectTitle, queryTitles) {
+		createProjectControlsNode(projectId);
+		createProjectTableHeader(projectId, projectTitle);
+		createProjectTableNode(projectId, queryTitles);
+	}
 
+	this.createProjectTableRowNode = function(projectId, version) {
+		var root = $('#summary_' + projectId);
+		var trNode = $('<tr id="queryRow_' + projectId + '_' + version + '"><th>' + version + '</th></tr>');
+		root.append(trNode);
+		return trNode;
+	}
 
+	this.appendQueryResultNode = function(root, projectId, version, queryId) {
+		var tdNode = $('<td id="queryResult_' + queryId +'"></td>');
+		root.append(tdNode);
+	}
 
+	this.showQueryResult = function(queryId, queryResult, url) {
+		$('#queryResult_' + queryId).empty();
 
+		var node = $('<a href="' + url + '" target="_blank" class="hide">' + queryResult + '</a>');
+
+		$('#queryResult_' + queryId).append(node);
+		node.fadeIn(600);
+	}
 
 
 

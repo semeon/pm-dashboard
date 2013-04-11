@@ -22,8 +22,8 @@ function Settings() {
 	  //       ],
 			// issueTrackers: ['Bug', 'Feature', 'Question'],
 			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
+			// 	{title: 'Development', 	includes: [1, 2, 19]},
+			// 	{title: 'Testing', 		includes: [3, 6, 18]},
 			// 	{title: 'Blocked', 		includes: [4, 14]},
 			// 	{title: 'Done', 		includes: [5]}
 			// ]
@@ -46,45 +46,45 @@ function Settings() {
 	  //       ],
 			// issueTrackers: ['Bug', 'Feature', 'Question'],
 			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
-			// 	{title: 'Blocked', 		includes: [4, 14]},
-			// 	{title: 'Done', 		includes: [5]}
-			// ]
-	      // }
-	      // ,
-
-	  //     { id: 'rsalfr',
-	  //       title: 'RS Alfresco',
-	  //       queryTitles: ['Total' ],
-	  //       versions: [
-	  //         { version: '2.0', 
-	  //           queries: ['435']
-	  //         },
-	  //         { version: '3.0', 
-	  //           queries: ['434']
-	  //         }
-	  //       ],
-			// issueTrackers: ['Bug', 'Feature', 'Question'],
-			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
+			// 	{title: 'Development', 	includes: [1, 2, 19]},
+			// 	{title: 'Testing', 		includes: [3, 6, 18]},
 			// 	{title: 'Blocked', 		includes: [4, 14]},
 			// 	{title: 'Done', 		includes: [5]}
 			// ]
 	  //     }
 	  //     ,
 
-	      { id: 'fpkloyalwebsrv',
-	        title: 'Test Project Title',
+	      { id: 'rsalfr',
+	        title: 'RS Alfresco',
 	        queryTitles: ['Total' ],
-	        versions: [],
+	        versions: [
+	          { version: '2.0', 
+	            queries: ['435']
+	          },
+	          { version: '3.0', 
+	            queries: ['434']
+	          }
+	        ],
 			issueTrackers: ['Bug', 'Feature', 'Question'],
 			customStatuses: [
-				{title: 'Development', 	includes: [1, 2]},
+				{title: 'Development', 	includes: [1, 2, 19]},
+				{title: 'Testing', 		includes: [3, 6, 18]},
+				{title: 'Blocked', 		includes: [4, 14]},
 				{title: 'Done', 		includes: [5]}
 			]
 	      }
+	  //     ,
+
+	  //     { id: 'fpkloyalwebsrv',
+	  //       title: 'Test Project Title',
+	  //       queryTitles: ['Total' ],
+	  //       versions: [],
+			// issueTrackers: ['Bug', 'Feature', 'Question'],
+			// customStatuses: [
+			// 	{title: 'Development', 	includes: [1, 2]},
+			// 	{title: 'Done', 		includes: [5]}
+			// ]
+	  //     }
 	      
 
 
@@ -141,11 +141,15 @@ function Settings() {
 	// Methods -----------------------------------------------------------
 	// -------------------------------------------------------------------
 	this.userSettings.getProjectSettingsById = function (projectId) {
+		console.log('UserSettings: Project by ID requested. Id: ' + projectId);
+
 		for(var i=0; i<self.userSettings.projects.length; i++) {
 			if ( self.userSettings.projects[i].id == projectId ) {
+				console.log('  Returned: ' + self.userSettings.projects[i].title);
 				return self.userSettings.projects[i];
 			}
 		}
+		console.log('  Returned: ' + undefined);
 		return undefined;
 	}
 
