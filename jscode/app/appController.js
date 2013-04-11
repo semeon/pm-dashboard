@@ -53,9 +53,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.listProjectsOnTheGreatingScreen();
 	}
 
-	this.eventHandler.onProjectSummaryRefreshBtnClick = function(projectId) {
-		alert('onProjectSummaryRefreshBtnClick');
-		// self.refreshQueries(projectId);
+	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
+		self.appView.projectSummaryView.update(project);
 	}
 
 	this.eventHandler.dataLoadErrorOccured = function (error) {
@@ -109,9 +108,9 @@ function AppController(userSettings, appSettings, redmineSettings){
 	// Create project stat blank
 	// -------------------------------------------------------------------------------------------
 	function createProjectSummaryBlank (projectId) {
-		var projectData = self.dataController.data.projects[projectId];
+		var project = self.dataController.data.projects[projectId];
 
-		self.appView.createProjectSummaryBlank(projectData);
+		self.appView.projectSummaryView.createBlank(project);
 
 
 	}

@@ -30,61 +30,61 @@ function Settings() {
 	  //     }
 	  //     ,
 
-	      { id: 'fpkloyalfeedback',
-	        title: 'FPK Loyalty External',
-	        queryTitles: ['Total' ],
-	        versions: [
-	          // { version: '9.0', 
-	          //   queries: ['366']
-	          // },
-	          // { version: '9.1', 
-	          //   queries: ['497']
-	          // },
-	          { version: '10.0', 
-	            queries: ['377']
-	          }
-	        ],
-			issueTrackers: ['Bug', 'Feature', 'Question'],
-			customStatuses: [
-				{title: 'Development', 	includes: [1, 2]},
-				{title: 'Testing', 		includes: [3, 6, 18, 19]},
-				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [5]}
-			]
-	      }
-	      ,
-
-	      { id: 'rsalfr',
-	        title: 'RS Alfresco',
-	        queryTitles: ['Total' ],
-	        versions: [
-	          { version: '2.0', 
-	            queries: ['435']
-	          },
-	          { version: '3.0', 
-	            queries: ['434']
-	          }
-	        ],
-			issueTrackers: ['Bug', 'Feature', 'Question'],
-			customStatuses: [
-				{title: 'Development', 	includes: [1, 2]},
-				{title: 'Testing', 		includes: [3, 6, 18, 19]},
-				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [5]}
-			]
-	      }
-	      ,
-
-	  //     { id: 'fpkloyalwebsrv',
-	  //       title: 'Test Project Title',
+	  //     { id: 'fpkloyalfeedback',
+	  //       title: 'FPK Loyalty External',
 	  //       queryTitles: ['Total' ],
-	  //       versions: [],
+	  //       versions: [
+	  //         // { version: '9.0', 
+	  //         //   queries: ['366']
+	  //         // },
+	  //         // { version: '9.1', 
+	  //         //   queries: ['497']
+	  //         // },
+	  //         { version: '10.0', 
+	  //           queries: ['377']
+	  //         }
+	  //       ],
 			// issueTrackers: ['Bug', 'Feature', 'Question'],
 			// customStatuses: [
 			// 	{title: 'Development', 	includes: [1, 2]},
+			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
+			// 	{title: 'Blocked', 		includes: [4, 14]},
+			// 	{title: 'Done', 		includes: [5]}
+			// ]
+	      // }
+	      // ,
+
+	  //     { id: 'rsalfr',
+	  //       title: 'RS Alfresco',
+	  //       queryTitles: ['Total' ],
+	  //       versions: [
+	  //         { version: '2.0', 
+	  //           queries: ['435']
+	  //         },
+	  //         { version: '3.0', 
+	  //           queries: ['434']
+	  //         }
+	  //       ],
+			// issueTrackers: ['Bug', 'Feature', 'Question'],
+			// customStatuses: [
+			// 	{title: 'Development', 	includes: [1, 2]},
+			// 	{title: 'Testing', 		includes: [3, 6, 18, 19]},
+			// 	{title: 'Blocked', 		includes: [4, 14]},
 			// 	{title: 'Done', 		includes: [5]}
 			// ]
 	  //     }
+	  //     ,
+
+	      { id: 'fpkloyalwebsrv',
+	        title: 'Test Project Title',
+	        queryTitles: ['Total' ],
+	        versions: [],
+			issueTrackers: ['Bug', 'Feature', 'Question'],
+			customStatuses: [
+				{title: 'Development', 	includes: [1, 2]},
+				{title: 'Done', 		includes: [5]}
+			]
+	      }
 	      
 
 
