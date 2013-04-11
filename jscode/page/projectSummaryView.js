@@ -60,6 +60,8 @@ function ProjectSummaryView ( pageView ) {
                 tableNodeHtml = tableNodeHtml +   '<th>' + columns[c].title + '</th>';
             }
 
+            // tableNodeHtml = tableNodeHtml +     '<th></th>';
+
             tableNodeHtml = tableNodeHtml +   '</tr></thead>';
             tableNodeHtml = tableNodeHtml +   '<tbody>';
 
@@ -75,6 +77,8 @@ function ProjectSummaryView ( pageView ) {
                     var nodeId = createNodeId(project.id, version.id, columns[c].title);
                     tableNodeHtml = tableNodeHtml + '<td id="' + nodeId + '"> - </td>';
                 }
+                // tableNodeHtml = tableNodeHtml +     '<td><button class="btn btn-mini" type="button"><i class="icon-refresh"></i></button></td>';
+
                 tableNodeHtml = tableNodeHtml + '</tr>';
 
               // tableNodeHtml = tableNodeHtml +   '<tr>' + columns[c].title + '</tr>';

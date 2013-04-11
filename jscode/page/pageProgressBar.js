@@ -13,8 +13,6 @@ function ProgressBar (rootId, id) {
     self.isActive = true;
 
     var rootNode = $('#' + rootId);
-
-
     var barNodeHtml =  '<div class="bar" style="width: ' + position + '%"></div>';;
     self.barNode = $(barNodeHtml);
 
@@ -35,7 +33,6 @@ function ProgressBar (rootId, id) {
     }
     
     self.node.fadeIn();
-
   }
 
 
@@ -57,7 +54,6 @@ function ProgressBar (rootId, id) {
       self.node.addClass('progress-info progress-success progress-warning progress-danger'); // info, success, warning, danger
       self.node.addClass('progress-' + type); // info, success, warning, danger
     }
-
   }
 
   this.hide = function(remove) {

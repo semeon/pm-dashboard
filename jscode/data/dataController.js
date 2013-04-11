@@ -48,6 +48,11 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 
 
+	// --------------------------------------------------------------------------------------------------------
+	this.reloadVersionData = function(project, version) {
+		console.log('Calling reload version data for ' + project.id + ' / ' + version.name);
+	}
+
 // ========================================================================================================
 // PRIVATE
 // ========================================================================================================

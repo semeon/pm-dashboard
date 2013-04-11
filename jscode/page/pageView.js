@@ -15,8 +15,6 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 // Welcome screen
 // 
 
-
-
 	this.switchFromGreatingsToPleaseWait = function() {
 		$('#greatingsMessage').addClass('hide');
 		$('#pleaseWaitMessage').removeClass('hide');
@@ -37,10 +35,17 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 		var href = redmineSettings.redmineUrl + redmineSettings.projectsRequestUrl;
 
-		for (var i=0; i<projects.length; i++) {
-			href = href + '\\' + projects[i].id;
-			root.append('<li><a href="' + href + '" target="_blank">' + projects[i].title + '</li>');
+		if (projects.length > 0) {
+			for (var i=0; i<projects.length; i++) {
+				href = href + '\\' + projects[i].id;
+				root.append('<li><a href="' + href + '" target="_blank">' + projects[i].title + '</li>');
+			}
+			$('#startLoadingBtn').fadeIn();
+		} else {
+			root.append('<li>Nothing to load!</li>');
+			self.showAlert('Epic fail!', 'Get a project first, manager..', 'error');
 		}
+
 	}
 
 
