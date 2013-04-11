@@ -11,12 +11,14 @@ function ProjectSummaryView ( pageView ) {
     this.createBlank = function (project) {
 
         var rootNode = $(projectSummaryRootSelector);
-        var projectSummaryNode = $('<div id="summary_' + project.id + '"></div>');
+        var projectSummaryNode = $('<div id="summary_' + project.id + '" class="hide"></div>');
         rootNode.append(projectSummaryNode);
 
         createProjectTableHeader(rootNode, project.id, project.title);
         createProjectControlsNode(rootNode, project);
         createProjectStandardTableNode(rootNode, project);
+
+        projectSummaryNode.fadeIn();
 
         // Header --------------------------------------
         function createProjectTableHeader(rootNode, projectId, projectTitle) {
@@ -116,7 +118,7 @@ function ProjectSummaryView ( pageView ) {
         var node = $('<span class="hide">' + newValue + '</span>');
         $(selector).empty();
         $(selector).append(node);
-        node.fadeIn();
+        node.delay(500).fadeIn();
 
     }
 

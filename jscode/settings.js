@@ -20,7 +20,7 @@ function Settings() {
 	  //           queries: [           '515',              '516',          '517',   '505']
 	  //         }
 	  //       ],
-			// issueTrackers: ['Bug', 'Feature', 'Question'],
+			// issueTrackers: [1, 2, 10],
 			// customStatuses: [
 			// 	{title: 'Development', 	includes: [1, 2, 19]},
 			// 	{title: 'Testing', 		includes: [3, 6, 18]},
@@ -34,17 +34,11 @@ function Settings() {
 	  //       title: 'FPK Loyalty External',
 	  //       queryTitles: ['Total' ],
 	  //       versions: [
-	  //         // { version: '9.0', 
-	  //         //   queries: ['366']
-	  //         // },
-	  //         // { version: '9.1', 
-	  //         //   queries: ['497']
-	  //         // },
 	  //         { version: '10.0', 
 	  //           queries: ['377']
 	  //         }
 	  //       ],
-			// issueTrackers: ['Bug', 'Feature', 'Question'],
+			// issueTrackers: [1, 2, 10],
 			// customStatuses: [
 			// 	{title: 'Development', 	includes: [1, 2, 19]},
 			// 	{title: 'Testing', 		includes: [3, 6, 18]},
@@ -65,7 +59,7 @@ function Settings() {
 	            queries: ['434']
 	          }
 	        ],
-			issueTrackers: ['Bug', 'Feature', 'Question'],
+			issueTrackers: [1, 2, 10],
 			customStatuses: [
 				{title: 'Development', 	includes: [1, 2, 19]},
 				{title: 'Testing', 		includes: [3, 6, 18]},
@@ -79,7 +73,7 @@ function Settings() {
 	  //       title: 'Test Project Title',
 	  //       queryTitles: ['Total' ],
 	  //       versions: [],
-			// issueTrackers: ['Bug', 'Feature', 'Question'],
+			// issueTrackers: [1, 2, 10],
 			// customStatuses: [
 			// 	{title: 'Development', 	includes: [1, 2]},
 			// 	{title: 'Done', 		includes: [5]}
@@ -130,6 +124,17 @@ function Settings() {
 			{id: 17, name: "Pending Acceptance"},
 			{id: 18, name: "Not Reproduced"},
 			{id: 19, name: "Reopened"}
+		],
+
+		issueTrackers: [
+			{id: 1,  name: "Bug"},
+			{id: 2,  name: "Feature"},
+			{id: 4,  name: "Task"},
+			{id: 6,  name: "Requirement"},
+			{id: 5,  name: "Change request"},
+			{id: 7,  name: "CR"},
+			{id: 9,  name: "ADJ"},
+			{id: 10, name: "Question"}
 		],
 
 		responseLimit: 100, // Redmine never return more than 100

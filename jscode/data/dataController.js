@@ -71,6 +71,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			dataProject.title = userProject.title;
 			dataProject.versions = {};
 			dataProject.customStatuses = userProject.customStatuses;
+			dataProject.issueTrackers = userProject.issueTrackers;
 
 		} else {
 			console.log(' - It does, proceeding with it.');
@@ -124,7 +125,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 					version.issueGroups = {};
 
 					// fill statuses with issues
-					getIssuesCount(	project, 
+					loadVersion(	project, 
 									version);
 
 					var d = 1;
@@ -136,7 +137,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	}//----------------------------------------------------------------------------------------------------
 
  	// ----------------------------------------------------------------------------------------------------
-	function getIssuesCount(project, version, issueGroups, customStatuses, verId) {
+	function loadVersion(project, version, issueGroups, customStatuses, verId) {
 
 		var requestUrl =  	redmineSettings.redmineUrl + redmineSettings.projectDataUrl + 
 							project.id + '/' + redmineSettings.issuesRequestUrl + 
@@ -152,28 +153,42 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			issueGroup.prId = project.id;
 			issueGroup.includes = project.customStatuses[i].includes;
 			issueGroup.requestCounter = 0;
+			issueGroup.requestsTotal = project.customStatuses[i].includes.length * project.issueTrackers.length;
 
-			sendIssueGroupRequests (project, issueGroup);
+			loadTrackersAndStatuses (project, issueGroup);
 		}
 
-		function sendIssueGroupRequests (project, group) {
+		function loadTrackersAndStatuses (project, group) {
+			var trackers = project.issueTrackers;
 			var standardStatuses = group.includes;
-			for (var j=0; j<standardStatuses.length; j++) {
-				var requestParams = {
-					fixed_version_id: 	group.ver,
-					status_id: 			standardStatuses[j],
-				};
-				sendIssueStatusRequest( requestUrl, requestParams, group);
+
+			for (var t=0; t<trackers.length; t++) {
+				var trackerId = trackers[t];
+
+				for (var s=0; s<standardStatuses.length; s++) {
+					var statusId = standardStatuses[s];
+					var requestParams = {
+						fixed_version_id: 	group.ver,
+						status_id: 			statusId,
+						tracker_id: 		trackerId
+					};
+
+					sendIssueStatusRequest( requestUrl, requestParams, group);
+				}
+
 			}
 		}
-		
+
+
+
 		// Request
 		function sendIssueStatusRequest (requestUrl, requestParams, group) {
 
-			console.log('Requesting issues for project/version/group/status_id: ' + 
+			console.log('Requesting issues for project/version/group/tracker/status_id: ' + 
 						group.prId + '/' + 
 						group.ver + '/' + 
 						group.title + '/' +
+						requestParams.tracker_id + '/' +
 						requestParams.status_id
 						);
 
@@ -190,26 +205,31 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 			gr.requestCounter += 1;
 
-
 			if (responseData.total_count || responseData.total_count == 0) {
-				console.log('Processing issues for project/version/group/request#/status_id/result: ' + 
-							gr.prId + '/' + 
-							gr.ver + '/' + 
-							gr.title + '/' +
-							gr.requestCounter + '/' +
-							rp.status_id + '/' +
-							responseData.total_count
-							);
+				console.log('Processing issues: ' + 
+
+							'prj: ' + gr.prId + ', ' + 
+							'ver: ' + gr.ver + ', ' + 
+							'group: ' + gr.title + ', ' + 
+							'request: ' + gr.requestCounter + ' of ' + gr.requestsTotal + ', ' + 
+							'tracker: ' + rp.tracker_id + ', ' + 
+							'status: ' + rp.status_id + ', ' + 
+							'result: ' + responseData.total_count );
 
 				if (responseData.total_count>0) {
-					console.log('EXAMPLE: ' + responseData.issues[0].status.id + ' / ' + responseData.issues[0].status.name);
-				// if(gr.requestCounter == issueGroup.includes.length) {
-					eventHandler.onProjectDataUpdate(gr.prId, gr.ver, gr.title, gr.count);
-				// }
+					console.log(' - EXAMPLE> Tracker: ' + 	
+									responseData.issues[0].tracker.name + ' (' + 
+									responseData.issues[0].tracker.id + '), Status: ' + 
+											responseData.issues[0].status.name + ' (' + 
+											responseData.issues[0].status.id + ')');
+					gr.count += responseData.total_count;
+
 				}
 
-				gr.count += responseData.total_count;
-
+				if(gr.requestCounter == gr.requestsTotal) {
+					console.log('Issues goup calculated.');
+					eventHandler.onProjectDataUpdate(gr.prId, gr.ver, gr.title, gr.count);
+				}
 
 			} else if (responseData.error) { 
 				console.log(error);
