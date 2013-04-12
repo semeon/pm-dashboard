@@ -17,13 +17,29 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 	// --------------------------------------------------------------------------------------------------------
 	this.startInitialDataLoad = function() {
-		console.log('Starting startInitialDataLoad');
+		console.log('Starting startInitialDataLoad: structured requests');
 		for(var p=0; p<userSettings.projects.length; p++) {
 			console.log('Calling loadProjectData for ' + userSettings.projects[p].id);
-			loadProjectData(userSettings.projects[p].id);
+			loadProjectData(userSettings.projects[p].id, true);
 		}
+
 	}
 
+
+	// --------------------------------------------------------------------------------------------------------
+	this.reloadProductData = function(project) {
+		console.log('Calling reload project versions for ' + project.id);
+		loadVersions(project);
+	}
+
+	// --------------------------------------------------------------------------------------------------------
+	this.reloadVersionData = function(project, version) {
+		console.log('Calling reload version data for ' + project.id + ' / ' + version.name);
+	}
+
+//-----------------------------------------------------------------------------------------------------
+// CUSTOM QUERIES
+//-----------------------------------------------------------------------------------------------------
 
 	// --------------------------------------------------------------------------------------------------------
 	this.getQueryResult = function(projectId, queryId, callback) {
@@ -38,28 +54,15 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
                         },
                         callback
                         ); 
-  }
-
-	// --------------------------------------------------------------------------------------------------------
-	this.reloadProductData = function(project) {
-		console.log('Calling reload project versions for ' + project.id);
-		loadVersions(project);
-	}
+    }
 
 
-
-	// --------------------------------------------------------------------------------------------------------
-	this.reloadVersionData = function(project, version) {
-		console.log('Calling reload version data for ' + project.id + ' / ' + version.name);
-	}
-
-// ========================================================================================================
-// PRIVATE
-// ========================================================================================================
-
+//-----------------------------------------------------------------------------------------------------
+// SRTUCTURED ISSUES REQUESTS
+//-----------------------------------------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------------------------------------
-	function loadProjectData(projectId) {
+	function loadProjectData(projectId, batch) {
 		console.log('Starting getVersionList for ' + projectId);
 
 		var userProject = userSettings.getProjectSettingsById(projectId);
@@ -75,6 +78,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			dataProject.id = userProject.id;
 			dataProject.title = userProject.title;
 			dataProject.versions = {};
+			dataProject.allIssues = [];
 			dataProject.customStatuses = userProject.customStatuses;
 			dataProject.issueTrackers = userProject.issueTrackers;
 
@@ -82,9 +86,13 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			console.log(' - It does, proceeding with it.');
 		}
 
-		console.log('Calling getVersionList for ' + dataProject.id);
-		loadVersions(dataProject);
-
+		if (batch) {
+			console.log('Calling batch issue load for ' + dataProject.id);
+			batchLoadProjectData(dataProject);
+		} else {
+			console.log('Calling getVersionList for ' + dataProject.id);
+			loadVersions(dataProject);
+		}
 	}//----------------------------------------------------------------------------------------------------
 
 
@@ -138,7 +146,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			}
 			
 	    }
-
 	}//----------------------------------------------------------------------------------------------------
 
  	// ----------------------------------------------------------------------------------------------------
@@ -232,29 +239,112 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 				}
 
 				if(gr.requestCounter == gr.requestsTotal) {
-					console.log('Issues goup calculated.');
+					console.log('Issue group calculated.');
 					eventHandler.onProjectDataUpdate(gr.prId, gr.ver, gr.title, gr.count);
 				}
 
 			} else if (responseData.error) { 
-				console.log(error);
+				console.log(responseData.error);
 				eventHandler.dataLoadErrorOccured(responseData.error);
 
 			} else {
-				console.log(error);
+				console.log(responseData.error);
 				eventHandler.genericErrorOccured('AJAX Data load');
 			}
 
 		}
-
-
 	} // --------------------------------------------------------------------------------------------------
 
 
 
+// --------------------------------------------------------------------------------------------------------
+// BATCH ISSUE LOAD
+// --------------------------------------------------------------------------------------------------------
+
+	function batchLoadProjectData(project) {
+	    var requestUrl =  redmineSettings.redmineUrl + 
+	                      redmineSettings.projectDataUrl + 
+	                      project.id + '/' +
+	                      redmineSettings.issuesRequestUrl + 
+	                      redmineSettings.jsonRequestModifier;
+
+		eventHandler.projectBatchLoadStarted(project);
+
+	    requestIssuesPage(project, requestUrl, 0);
 
 
-	// --------------------------------------------------------------------------------------------------------
+	    // Request
+		function requestIssuesPage (project, requestUrl, offset) {
+
+			var requestParameters = { offset: offset };
+
+			console.log('Requesting issues page ' + offset + ' for ' + project.id);
+			console.log(' - URL:  ' + requestUrl);
+
+			genericRequest( requestUrl, 
+							requestParameters, 
+							function (data) {
+								processIssuesPage(data, requestParameters, project, requestUrl);
+							});
+		}
+
+		function processIssuesPage (data, rp, project, requestUrl) {
+			console.log('Processing issues page ' + rp.offset + ' for ' + project.id);
+			console.log(data);
+
+			if (data.issues) {
+
+				var prevPagesIssueCount = project.allIssues.length;
+				var currentPageIssueCount = data.issues.length;
+
+				if( (prevPagesIssueCount+currentPageIssueCount) > data.total_count) {
+					var diff = data.total_count - prevPagesIssueCount;
+					var notLoadedIssues = data.issues.slice(currentPageIssueCount-diff);
+					project.allIssues = project.allIssues.concat(notLoadedIssues);
+
+				} else {
+					project.allIssues = project.allIssues.concat(data.issues);
+				}
+
+				var loadedIssuesCount = project.allIssues.length;
+
+				// console.log(' - Previously loaded issues: ' + prevPagesIssueCount);
+				// console.log(' - Issues loaded on current page: ' + currentPageIssueCount);
+				// console.log(' - Total issues loaded so far: ' + loadedIssuesCount);
+
+				eventHandler.projectBatchLoadUpdated(project.id, loadedIssuesCount, data.total_count);
+
+				if (loadedIssuesCount < data.total_count) {
+					var nexPageNum = rp.offset + 1;
+					console.log(' - Calling next page load, page ' + nexPageNum);
+					requestIssuesPage(project, requestUrl, nexPageNum);
+				} else {
+					eventHandler.projectBatchLoadCompleted(project);
+				}
+
+
+
+			} else if (data.error) { 
+				console.log(data.error);
+				eventHandler.dataLoadErrorOccured(data.error);
+
+			} else {
+				console.log(data.error);
+				eventHandler.genericErrorOccured('AJAX Data load');
+			}
+
+
+
+		}
+
+
+	}
+
+
+
+// --------------------------------------------------------------------------------------------------------
+// GENERIC REQUEST
+// --------------------------------------------------------------------------------------------------------
 	function genericRequest(requestUri, requestParams, callback) {
 		self.pendingRequestCounter++;
 		self.totalRequestCounter++;

@@ -9,7 +9,40 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	this.requestStatusAlert  = new AppAlert('statusMessages', 'customRequestAlert');
 	this.requestsProgressBar = new ProgressBar('statusMessages', 'requestsProgressBar');
 
+	this.batchLoadBars = {};
+
+
 	this.projectSummaryView = new ProjectSummaryView(self);
+
+// -------------------------------------------------------------------------------------------
+// Batch load page
+// 
+
+	this.createBatchLoadProgressBar = function (projectId, projectTitle) {
+		var statusNodeId = 'batchLoad_' + projectId;
+		var projectBatchLoadStatusDiv = $('<div id="' + statusNodeId + '"></div>');
+		$('#batchLoadStatus').append(projectBatchLoadStatusDiv);
+
+		projectBatchLoadStatusDiv.append('<span>Loading ' + projectTitle + ':</span>');
+
+		var pb = new ProgressBar(statusNodeId, 'batchLoadBar_' + projectId);
+		self.batchLoadBars[projectId] = pb;
+
+		projectBatchLoadStatusDiv.append(pb);
+
+		pb.show(0, 'striped');
+	}
+
+	this.updateBatchLoadProgresBar = function (projectId, current, total) {
+		var pb = self.batchLoadBars[projectId];
+		var position = Math.round((current/total)*100 );
+
+		console.log('Updating progress bar position for ' + projectId + '. ' + position + '%');
+		pb.update(position, 'striped');
+	
+	}
+
+
 
 // -------------------------------------------------------------------------------------------
 // Welcome screen

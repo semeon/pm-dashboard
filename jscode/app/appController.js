@@ -20,7 +20,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 			if (initialLoad) {
 				console.log('Initial data load started.');
 				self.appView.switchFromGreatingsToPleaseWait();
-				self.appMonitor.runMonitor();
+				// self.appMonitor.runMonitor();
 				// self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
 			} else {
 				console.log('Data load started.');
@@ -37,7 +37,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 				console.log('  App data:');
 				console.log(self.dataController.data);
 
-				self.appView.hideItem('#pleaseWaitMessage');
+				// self.appView.hideItem('#pleaseWaitMessage');
 
 				// Start buildig standard summary
 				// displayStandardSummary(self.dataController.dataModel.projectList);
@@ -98,8 +98,17 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 
+	this.eventHandler.projectBatchLoadStarted = function (project) {
+		self.appView.createBatchLoadProgressBar(project.id, project.title);
+	}
 
+	this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
+		console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
+		self.appView.updateBatchLoadProgresBar(projectId, current, total);
+	}
 
+	this.eventHandler.projectBatchLoadCompleted = function (project) {
+	}
 
 
 // -------------------------------------------------------------------------------------------

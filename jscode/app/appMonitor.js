@@ -35,8 +35,8 @@ function AppMonitor(appView, appDC, appData){
 		  appView.requestsProgressBar.update(progressBarPosition);
 
 		} else if(currentNum==0 && prevNum==0 && appView.requestStatusAlert.isActive){
-		  appView.requestStatusAlert.hide(true);
-		  appView.requestsProgressBar.hide(true);
+		  appView.requestStatusAlert.hide();
+		  appView.requestsProgressBar.hide();
 		  appDC.totalRequestCounter = 0;
 
 		} else if(currentNum==0 && prevNum>0){
