@@ -21,16 +21,19 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	this.createBatchLoadProgressBar = function (projectId, projectTitle) {
 		var statusNodeId = 'batchLoad_' + projectId;
 		var projectBatchLoadStatusDiv = $('<div id="' + statusNodeId + '"></div>');
-		$('#batchLoadStatus').append(projectBatchLoadStatusDiv);
+		// $('#batchLoadStatus').append(projectBatchLoadStatusDiv);
+		$('#statusMessages').append(projectBatchLoadStatusDiv);
 
 		projectBatchLoadStatusDiv.append('<span>Loading ' + projectTitle + ':</span>');
 
-		var pb = new ProgressBar(statusNodeId, 'batchLoadBar_' + projectId);
+		var caption = projectTitle + ' issues loading: ';
+
+		var pb = new ProgressBar(statusNodeId, 'batchLoadBar_' + projectId, projectTitle);
 		self.batchLoadBars[projectId] = pb;
 
 		projectBatchLoadStatusDiv.append(pb);
 
-		pb.show(0, 'striped');
+		pb.show(1, 'striped');
 	}
 
 	this.updateBatchLoadProgresBar = function (projectId, current, total) {
@@ -39,9 +42,12 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 		console.log('Updating progress bar position for ' + projectId + '. ' + position + '%');
 		pb.update(position, 'striped');
+
+		if (position == 100) {
+			pb.hide(true);
+		}
 	
 	}
-
 
 
 // -------------------------------------------------------------------------------------------
@@ -50,8 +56,8 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 	this.switchFromGreatingsToPleaseWait = function() {
 		$('#greatingsMessage').addClass('hide');
-		$('#pleaseWaitMessage').removeClass('hide');
-		$('#pleaseWaitMessage').removeClass('hide');
+		// $('#pleaseWaitMessage').removeClass('hide');
+		// $('#pleaseWaitMessage').delay(4000).fadeOut();
 	}
 
 	this.displayItem = function(selector) {
@@ -59,7 +65,8 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	}
 
 	this.hideItem = function(selector) {
-		$(selector).addClass('hide');
+		// $(selector).addClass('hide');
+		$(selector).fadeOut();
 	}
 
 	this.listProjectsOnTheGreatingScreen = function() {

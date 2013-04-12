@@ -17,72 +17,79 @@ function AppController(userSettings, appSettings, redmineSettings){
 //
 	$(document).ajaxStart(
 		function() {
-			if (initialLoad) {
-				console.log('Initial data load started.');
-				self.appView.switchFromGreatingsToPleaseWait();
-				// self.appMonitor.runMonitor();
-				// self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
-			} else {
-				console.log('Data load started.');
-			}
+			// if (initialLoad) {
+			// 	console.log('Initial data load started.');
+			// 	self.appView.switchFromGreatingsToPleaseWait();
+			// 	// self.appMonitor.runMonitor();
+			// 	// self.appView.showAlert('Loading...','Application is collecting data from Redmine.', 'info');
+			// } else {
+			// 	console.log('Data load started.');
+			// }
 		}
 	);
 
 	$(document).ajaxStop(
 		function() {
-			if (initialLoad) {
-				initialLoad = false;
+			// if (initialLoad) {
+			// 	initialLoad = false;
 
-				console.log('Initial data load completed.');
-				console.log('  App data:');
-				console.log(self.dataController.data);
+			// 	console.log('Initial data load completed.');
+			// 	console.log('  App data:');
+			// 	console.log(self.dataController.data);
 
-				// self.appView.hideItem('#pleaseWaitMessage');
+			// 	self.appView.hideItem('#pleaseWaitMessage');
 
-				// Start buildig standard summary
-				// displayStandardSummary(self.dataController.dataModel.projectList);
+			// 	// Start buildig standard summary
+			// 	// displayStandardSummary(self.dataController.dataModel.projectList);
 
-				// for(var p=0; p<userSettings.projects.length; p++) {
-				// 	console.log('Calling creating summary blank for ' + userSettings.projects[p].id);
-				// 	createProjectSummaryBlank(userSettings.projects[p].id);
-				// }
+			// 	// for(var p=0; p<userSettings.projects.length; p++) {
+			// 	// 	console.log('Calling creating summary blank for ' + userSettings.projects[p].id);
+			// 	// 	createProjectSummaryBlank(userSettings.projects[p].id);
+			// 	// }
 
-				for(projectId in self.dataController.data.projects) {
-					console.log('Calling creating summary blank for ' + projectId);
-					self.appView.projectSummaryView.createBlank(self.dataController.data.projects[projectId]);
-					self.appView.projectSummaryView.update(self.dataController.data.projects[projectId]);
-				}
+			// 	for(projectId in self.dataController.data.projects) {
+			// 		// console.log('Calling creating summary blank for ' + projectId);
+			// 		//self.appView.projectSummaryView.createBlank(self.dataController.data.projects[projectId]);
+			// 		// self.appView.projectSummaryView.update(self.dataController.data.projects[projectId]);
+			// 	}
 
 
-				// self.appMonitor.runMonitor();
-			} else {
-				console.log('Data load completed.');
-			}
-			console.log('---------------------------------------');
+			// 	// self.appMonitor.runMonitor();
+			// } else {
+			// 	console.log('Data load completed.');
+			// }
+			// console.log('---------------------------------------');
 		}
 	);
 
-	this.eventHandler.startButtonClick = function() {
-		self.dataController.startInitialDataLoad();
-	}
 
 	this.eventHandler.onBodyLoad = function() {
 		// self.appMonitor.runMonitor();
-
 		self.appView.listProjectsOnTheGreatingScreen();
 	}
 
-	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
-		console.log('Refresh project summary button clicked for ' + project.id);
-		self.dataController.reloadProductData(project);
+	this.eventHandler.startButtonClick = function() {
+		self.dataController.startInitialDataLoad();
+		self.appView.switchFromGreatingsToPleaseWait();
 	}
 
-	this.eventHandler.onProjectDataUpdate = function(projectId, versionId, groupName, newValue) {
-		if (!initialLoad) {
-			console.log('Project data updated for project/version/group: ' + projectId + '/' + versionId + '/' + groupName );
-			self.appView.projectSummaryView.updateCell(projectId, versionId, groupName, newValue);
-		}
+	this.eventHandler.projectBatchLoadStarted = function (project) {
+		self.appView.createBatchLoadProgressBar(project.id, project.title);
+		console.log('Calling project summary blank for ' + project.id);
+		self.appView.projectSummaryView.createBlank(project);
 	}
+
+	this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
+		console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
+		self.appView.updateBatchLoadProgresBar(projectId, current, total);
+	}
+
+	this.eventHandler.projectBatchLoadCompleted = function (project) {
+		self.dataController.createDataStructureFromAllIssues(project);
+		self.appView.projectSummaryView.update(project);
+	}
+
+
 
 	this.eventHandler.dataLoadErrorOccured = function (error) {
 		var message = error.message + ' (' + error.code + ').';
@@ -97,17 +104,21 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.showAlert('Error', message, 'error')
 	}
 
-
-	this.eventHandler.projectBatchLoadStarted = function (project) {
-		self.appView.createBatchLoadProgressBar(project.id, project.title);
+	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
+		console.log('Refresh project summary button clicked for ' + project.id);
+		// self.dataController.reloadProductData(project);
 	}
 
-	this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
-		console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
-		self.appView.updateBatchLoadProgresBar(projectId, current, total);
-	}
 
-	this.eventHandler.projectBatchLoadCompleted = function (project) {
+// -------------------------------------------------------------------------------------------
+// OLD
+// -------------------------------------------------------------------------------------------
+
+	this.eventHandler.onProjectDataUpdate = function(projectId, versionId, groupName, newValue) {
+		if (!initialLoad) {
+			console.log('Project data updated for project/version/group: ' + projectId + '/' + versionId + '/' + groupName );
+			self.appView.projectSummaryView.updateCell(projectId, versionId, groupName, newValue);
+		}
 	}
 
 
@@ -134,16 +145,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 	// -------------------------------------------------------------------------------------------
 	// Create project stat blank
 	// -------------------------------------------------------------------------------------------
-	function createProjectSummaryBlank (projectId) {
-		console.log('Starting createProjectSummaryBlank for ' + projectId);
-
-		var project = self.dataController.data.projects[projectId];
-
-		console.log('Calling createBlank for ' + project);
-		self.appView.projectSummaryView.createBlank(project);
-
-
-	}
 
 
 

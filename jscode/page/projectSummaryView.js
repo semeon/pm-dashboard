@@ -10,6 +10,7 @@ function ProjectSummaryView ( pageView ) {
 
     this.createBlank = function (project) {
 
+        console.log('Creating project summary blank for ' + project.id);
         var rootNode = $(projectSummaryRootSelector);
         var projectSummaryNode = $('<div id="summary_' + project.id + '" class="hide"></div>');
         rootNode.append(projectSummaryNode);

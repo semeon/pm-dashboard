@@ -20,11 +20,10 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		console.log('Starting startInitialDataLoad: structured requests');
 		for(var p=0; p<userSettings.projects.length; p++) {
 			console.log('Calling loadProjectData for ' + userSettings.projects[p].id);
-			loadProjectData(userSettings.projects[p].id, true);
+			loadProjectData(userSettings.projects[p].id, false);
 		}
 
 	}
-
 
 	// --------------------------------------------------------------------------------------------------------
 	this.reloadProductData = function(project) {
@@ -33,32 +32,68 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	}
 
 	// --------------------------------------------------------------------------------------------------------
-	this.reloadVersionData = function(project, version) {
-		console.log('Calling reload version data for ' + project.id + ' / ' + version.name);
+	this.createDataStructureFromAllIssues = function(project) {
+
+		// Structure:
+		// 	Project
+		// 	 - Version
+		//		- Custom Status
+
+		console.log('Creating data structure for ' + project.id);
+
+		var supportedStatuses = [];
+		for (var cs=0; cs<project.customStatuses.length; cs++) {
+			supportedStatuses = supportedStatuses.concat(project.customStatuses[cs].includes);
+		}
+		console.log('Supported statuses: ' + supportedStatuses);
+
+		var issues = project.allIssues;
+		for (var i=0; i<issues.length; i++) {
+			console.log('------------------------------------------------------');
+			console.log('Processing issue:  ' + i);
+			var issue = issues[i];
+			var issueStatus = issue.status.id;
+			var issueTracker = issue.tracker.id;
+			var versionId = 'none';
+			if(issue.fixed_version) {
+				versionId = issue.fixed_version.id;
+			}
+
+			var version = project.versions[versionId];
+
+			console.log('- Checking tracker and status..');
+			if ( $.inArray(issueTracker, project.issueTrackers) > -1 
+					&&
+				 $.inArray(issueStatus, supportedStatuses) > -1
+				 	&& 
+				 project.versions[versionId]) {
+
+				console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
+
+				// Issue group ---------------------------------
+				var issueGroupname = '';
+				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+					var groupName = project.customStatuses[cs].title;
+					if ( $.inArray(issueStatus, project.customStatuses[cs].includes) > -1 ) {
+						issueGroupname = groupName;
+						continue;
+					}
+				}
+				console.log('- Checking if group ' + issueGroupname + ' does exist..');
+				var group = project.versions[versionId].issueGroups[issueGroupname];
+
+				console.log('-- Yes. Increasing counter..');
+				group.count++;
+
+			} else {
+				console.log(' - Doesn\'t fit. Next..');
+			}
+		}
 	}
 
-//-----------------------------------------------------------------------------------------------------
-// CUSTOM QUERIES
-//-----------------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------------------
-	this.getQueryResult = function(projectId, queryId, callback) {
-	    var requestUrl =  redmineSettings.redmineUrl + 
-	                      redmineSettings.issuesRequestUrl + 
-	                      redmineSettings.jsonRequestModifier;
-
-	    genericRequest(userSettings.queryURL + '.json', 
-                        {
-                          project_id: projectId,
-                          query_id: queryId
-                        },
-                        callback
-                        ); 
-    }
-
 
 //-----------------------------------------------------------------------------------------------------
-// SRTUCTURED ISSUES REQUESTS
+// PROJECT DATA LOAD
 //-----------------------------------------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------------------------------------
@@ -66,7 +101,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		console.log('Starting getVersionList for ' + projectId);
 
 		var userProject = userSettings.getProjectSettingsById(projectId);
-
 		var dataProject = self.data.projects[userProject.id];
 
 		console.log('Cheking, if the project already exist');
@@ -85,19 +119,13 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		} else {
 			console.log(' - It does, proceeding with it.');
 		}
-
-		if (batch) {
-			console.log('Calling batch issue load for ' + dataProject.id);
-			batchLoadProjectData(dataProject);
-		} else {
-			console.log('Calling getVersionList for ' + dataProject.id);
-			loadVersions(dataProject);
-		}
+		console.log('Calling batch issue load for ' + dataProject.id);
+		loadVersions(dataProject, batch);
 	}//----------------------------------------------------------------------------------------------------
 
 
 	//-----------------------------------------------------------------------------------------------------
-	function loadVersions(project) {
+	function loadVersions(project, loadIssues) {
 		console.log('Starting getVersionList for ' + project.id);
 
 	    var requestUrl =  redmineSettings.redmineUrl + 
@@ -115,15 +143,16 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			genericRequest( requestUrl, 
 							{}, 
 							function (data) {
-								processVersions(data, project);
+								processVersions(data, project, loadIssues);
 							});
 		}
 
 		// Response processing
-	    function processVersions(data, project) {
+	    function processVersions(data, project, loadIssues) {
 			console.log('Starting procesing versions for ' + project.id);
 
 			if (data.total_count > redmineSettings.responseLimit) {
+				// TODO - Use pagination here
 				alert('Warning! Redmine response limit is exceeded.' +
 				      '\nRequested items count: ' + data.total_count + '.' +
 				      '\nLimit: ' + redmineSettings.responseLimit + '.'
@@ -132,24 +161,143 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 			for (var v=0; v<data.versions.length; v++) {
 				var version = data.versions[v];
-
 				if (version.status != 'closed') {
 					project.versions[String(version.id)] = version;
 					version.issueGroups = {};
 
-					// fill statuses with issues
-					loadVersion(	project, 
-									version);
+					for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+						var groupName = project.customStatuses[cs].title;
+						version.issueGroups[groupName] = {};
+						version.issueGroups[groupName].title = groupName;
+						version.issueGroups[groupName].count = 0;
+					}
 
-					var d = 1;
+					if (loadIssues) { 
+						console.log('Calling load issues by groups');
+						// loadVersion(project, version);
+					}
 				}
 			}
 			
+			if (!loadIssues) {
+				console.log('Calling batch load');
+				batchLoadProjectData(project);
+			}					
 	    }
 	}//----------------------------------------------------------------------------------------------------
 
+
+// --------------------------------------------------------------------------------------------------------
+// BATCH ISSUE LOAD
+// --------------------------------------------------------------------------------------------------------
+
+	function batchLoadProjectData(project) {
+		console.log('!!! Starting batch load for ' + project.id);
+
+	    var requestUrl =  redmineSettings.redmineUrl + 
+	                      redmineSettings.projectDataUrl + 
+	                      project.id + '/' +
+	                      redmineSettings.issuesRequestUrl + 
+	                      redmineSettings.jsonRequestModifier;
+
+		eventHandler.projectBatchLoadStarted(project);
+	    requestIssuesPage(project, requestUrl, 0);
+
+	    // Request
+		function requestIssuesPage (project, requestUrl, offset) {
+
+			var requestParameters = { offset: offset, status_id: '*' };
+
+			console.log('Requesting issues page ' + offset + ' for ' + project.id);
+			console.log(' - URL:  ' + requestUrl);
+
+			genericRequest( requestUrl, 
+							requestParameters, 
+							function (data) {
+								processIssuesPage(data, requestParameters, project, requestUrl);
+							});
+		}
+
+	    // Response preocessing
+		function processIssuesPage (data, rp, project, requestUrl) {
+			console.log('Processing issues page ' + rp.offset + ' for ' + project.id);
+			console.log(data);
+
+			if (data.issues) {
+
+				var prevPagesIssueCount = project.allIssues.length;
+				var currentPageIssueCount = data.issues.length;
+
+				if( (prevPagesIssueCount+currentPageIssueCount) > data.total_count) {
+					var diff = data.total_count - prevPagesIssueCount;
+					var notLoadedIssues = data.issues.slice(currentPageIssueCount-diff);
+					project.allIssues = project.allIssues.concat(notLoadedIssues);
+
+				} else {
+					project.allIssues = project.allIssues.concat(data.issues);
+				}
+
+				var loadedIssuesCount = project.allIssues.length;
+
+				// console.log(' - Previously loaded issues: ' + prevPagesIssueCount);
+				// console.log(' - Issues loaded on current page: ' + currentPageIssueCount);
+				// console.log(' - Total issues loaded so far: ' + loadedIssuesCount);
+
+				eventHandler.projectBatchLoadUpdated(project.id, loadedIssuesCount, data.total_count);
+
+				if (loadedIssuesCount < data.total_count) {
+					var nexPageNum = rp.offset + 1;
+					console.log(' - Calling next page load, page ' + nexPageNum);
+					requestIssuesPage(project, requestUrl, nexPageNum);
+				} else {
+					eventHandler.projectBatchLoadCompleted(project);
+				}
+
+
+			} else if (data.error) { 
+				console.log(data.error);
+				eventHandler.dataLoadErrorOccured(data.error);
+
+			} else {
+				console.log(data.error);
+				eventHandler.genericErrorOccured('AJAX Data load');
+			}
+
+
+
+		}
+
+
+	}
+
+
+
+// --------------------------------------------------------------------------------------------------------
+// GENERIC REQUEST
+// --------------------------------------------------------------------------------------------------------
+	function genericRequest(requestUri, requestParams, callback) {
+		self.pendingRequestCounter++;
+		self.totalRequestCounter++;
+		requestParams.key = redmineSettings.userKey;
+		requestParams.limit = redmineSettings.responseLimit;
+
+		$.getJSON(
+		          requestUri,
+		          requestParams,
+		          function(data) {
+		            self.pendingRequestCounter--;
+		            callback(data, requestParams);
+		          }
+		         );
+
+	}  
+
+//-----------------------------------------------------------------------------------------------------
+// SRTUCTURED ISSUES REQUESTS (DEPRICATED)
+//-----------------------------------------------------------------------------------------------------
+
  	// ----------------------------------------------------------------------------------------------------
-	function loadVersion(project, version, issueGroups, customStatuses, verId) {
+	function loadVersion(project, version) {
 
 		var requestUrl =  	redmineSettings.redmineUrl + redmineSettings.projectDataUrl + 
 							project.id + '/' + redmineSettings.issuesRequestUrl + 
@@ -160,6 +308,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			version.issueGroups[project.customStatuses[i].title] = issueGroup;
 
 			issueGroup.count = 0;
+
 			issueGroup.title = project.customStatuses[i].title;
 			issueGroup.ver = version.id;
 			issueGroup.prId = project.id;
@@ -171,6 +320,8 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		}
 
 		function loadTrackersAndStatuses (project, group) {
+
+			console.log('loadTrackersAndStatuses started for ' + project.id + ' / ' + group.title);
 			var trackers = project.issueTrackers;
 			var standardStatuses = group.includes;
 
@@ -191,8 +342,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			}
 		}
 
-
-
 		// Request
 		function sendIssueStatusRequest (requestUrl, requestParams, group) {
 
@@ -210,7 +359,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 								processIssuegroupResponse(data, requestParams, group);
 							});
 		}
-
 
 		// Response processing
 		function processIssuegroupResponse(responseData, rp, gr) {
@@ -256,111 +404,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	} // --------------------------------------------------------------------------------------------------
 
 
-
-// --------------------------------------------------------------------------------------------------------
-// BATCH ISSUE LOAD
-// --------------------------------------------------------------------------------------------------------
-
-	function batchLoadProjectData(project) {
-	    var requestUrl =  redmineSettings.redmineUrl + 
-	                      redmineSettings.projectDataUrl + 
-	                      project.id + '/' +
-	                      redmineSettings.issuesRequestUrl + 
-	                      redmineSettings.jsonRequestModifier;
-
-		eventHandler.projectBatchLoadStarted(project);
-
-	    requestIssuesPage(project, requestUrl, 0);
-
-
-	    // Request
-		function requestIssuesPage (project, requestUrl, offset) {
-
-			var requestParameters = { offset: offset };
-
-			console.log('Requesting issues page ' + offset + ' for ' + project.id);
-			console.log(' - URL:  ' + requestUrl);
-
-			genericRequest( requestUrl, 
-							requestParameters, 
-							function (data) {
-								processIssuesPage(data, requestParameters, project, requestUrl);
-							});
-		}
-
-		function processIssuesPage (data, rp, project, requestUrl) {
-			console.log('Processing issues page ' + rp.offset + ' for ' + project.id);
-			console.log(data);
-
-			if (data.issues) {
-
-				var prevPagesIssueCount = project.allIssues.length;
-				var currentPageIssueCount = data.issues.length;
-
-				if( (prevPagesIssueCount+currentPageIssueCount) > data.total_count) {
-					var diff = data.total_count - prevPagesIssueCount;
-					var notLoadedIssues = data.issues.slice(currentPageIssueCount-diff);
-					project.allIssues = project.allIssues.concat(notLoadedIssues);
-
-				} else {
-					project.allIssues = project.allIssues.concat(data.issues);
-				}
-
-				var loadedIssuesCount = project.allIssues.length;
-
-				// console.log(' - Previously loaded issues: ' + prevPagesIssueCount);
-				// console.log(' - Issues loaded on current page: ' + currentPageIssueCount);
-				// console.log(' - Total issues loaded so far: ' + loadedIssuesCount);
-
-				eventHandler.projectBatchLoadUpdated(project.id, loadedIssuesCount, data.total_count);
-
-				if (loadedIssuesCount < data.total_count) {
-					var nexPageNum = rp.offset + 1;
-					console.log(' - Calling next page load, page ' + nexPageNum);
-					requestIssuesPage(project, requestUrl, nexPageNum);
-				} else {
-					eventHandler.projectBatchLoadCompleted(project);
-				}
-
-
-
-			} else if (data.error) { 
-				console.log(data.error);
-				eventHandler.dataLoadErrorOccured(data.error);
-
-			} else {
-				console.log(data.error);
-				eventHandler.genericErrorOccured('AJAX Data load');
-			}
-
-
-
-		}
-
-
-	}
-
-
-
-// --------------------------------------------------------------------------------------------------------
-// GENERIC REQUEST
-// --------------------------------------------------------------------------------------------------------
-	function genericRequest(requestUri, requestParams, callback) {
-		self.pendingRequestCounter++;
-		self.totalRequestCounter++;
-		requestParams.key = redmineSettings.userKey;
-		requestParams.limit = redmineSettings.responseLimit;
-
-		$.getJSON(
-		          requestUri,
-		          requestParams,
-		          function(data) {
-		            self.pendingRequestCounter--;
-		            callback(data, requestParams);
-		          }
-		         );
-
-	}  
 
 
 }
