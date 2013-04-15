@@ -77,6 +77,8 @@ function ProgressBar (rootId, title) {
 		  barNode.addClass('progress-success');
 
 		  self.hide();
+		} else {
+		  self.show(style, type);
 		}
 
 	}
