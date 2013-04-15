@@ -30,23 +30,23 @@ function Settings() {
 	  //     }
 	  //     ,
 
-	  //     { id: 'fpkloyalfeedback',
-	  //       title: 'FPK Loyalty External',
-	  //       queryTitles: ['Total' ],
-	  //       versions: [
-	  //         { version: '10.0', 
-	  //           queries: ['377']
-	  //         }
-	  //       ],
-			// issueTrackers: [1, 2, 10],
-			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2, 19]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18]},
-			// 	{title: 'Blocked', 		includes: [4, 14]},
-			// 	{title: 'Done', 		includes: [5]}
-			// ]
-	  //     }
-	  //     ,
+	      { id: 'fpkloyalfeedback',
+	        title: 'FPK Loyalty External',
+	        queryTitles: ['Total' ],
+	        versions: [
+	          { version: '10.0', 
+	            queries: ['377']
+	          }
+	        ],
+			issueTrackers: [1, 2, 10],
+			customStatuses: [
+				{title: 'Development', 	includes: [1, 2, 19]},
+				{title: 'Testing', 		includes: [3, 6, 18]},
+				{title: 'Blocked', 		includes: [4, 14]},
+				{title: 'Done', 		includes: [5]}
+			]
+	      }
+	      ,
 
 	      { id: 'rsalfr',
 	        title: 'RS Alfresco',

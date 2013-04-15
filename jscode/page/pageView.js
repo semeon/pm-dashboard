@@ -18,33 +18,22 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 // Batch load page
 // 
 
-	this.createBatchLoadProgressBar = function (projectId, projectTitle) {
-		var statusNodeId = 'batchLoad_' + projectId;
-		var projectBatchLoadStatusDiv = $('<div id="' + statusNodeId + '"></div>');
-		// $('#batchLoadStatus').append(projectBatchLoadStatusDiv);
-		$('#statusMessages').append(projectBatchLoadStatusDiv);
+	this.createBatchLoadProgressBar = function (project) {
 
-		projectBatchLoadStatusDiv.append('<span>Loading ' + projectTitle + ':</span>');
+		var rootId = 'statusMessages';
+		var pb = new ProgressBar(rootId, project.title);
+		self.batchLoadBars[project.id] = pb;
 
-		var caption = projectTitle + ' issues loading: ';
-
-		var pb = new ProgressBar(statusNodeId, 'batchLoadBar_' + projectId, projectTitle);
-		self.batchLoadBars[projectId] = pb;
-
-		projectBatchLoadStatusDiv.append(pb);
-
-		pb.show(1, 'striped');
+		pb.show('striped');
 	}
 
 	this.updateBatchLoadProgresBar = function (projectId, current, total) {
 		var pb = self.batchLoadBars[projectId];
-		var position = Math.round((current/total)*100 );
+		console.log('Updating progress bar position for ' + projectId);
 
-		console.log('Updating progress bar position for ' + projectId + '. ' + position + '%');
-		pb.update(position, 'striped');
-
-		if (position == 100) {
-			pb.hide(true);
+		pb.update(current, total, 'striped');
+		if (current == total) {
+			pb.hide();
 		}
 	
 	}

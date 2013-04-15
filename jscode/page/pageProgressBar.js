@@ -1,74 +1,73 @@
-function ProgressBar (rootId, id) {
+function ProgressBar (rootId, title) {
 
 	var self = this;
-	this.id = id;
-	this.delay = 1000;
-	this.node = $('<div id="' + id + '" class="progress hide"></div>');
-	this.barNode = $('<div class="bar" style="width: 0%"></div>');
-	this.isActive = false;
+	var delay = 1000;
+	var caption = title;
 
-	self.node.append(self.barNode);
-	$('#' + rootId).append(self.node);
+	var rootNode = $('#' + rootId);
+
+	var mainNode = $('<div class="hide"></div>');
+	rootNode.append(mainNode);
+
+	var captionNode = $('<span>Loading ' + caption + ' issues..<span>');
+	mainNode.append(captionNode);
+
+	var barNode = $('<div class="progress active"></div>');
+	mainNode.append(barNode);
+
+	var barSubNode = $('<div class="bar" style="width: 0%"></div>');
+	barNode.append(barSubNode);
 
 
 
-	this.show = function(position, style, type) {
-		self.isActive = true;
-
-		if (position > 0) {
-			self.node.addClass('active'); 
-		}
+	this.show = function(style, type) {
 		if (style) {
-			self.node.addClass('progress-' + style); // striped
+			barNode.addClass('progress-' + style); // striped
 		}
 		if (type) {
-			self.node.addClass('progress-' + type); // info, success, warning, danger
+			barNode.addClass('progress-' + type); // info, success, warning, danger
 		}
-
-		self.node.fadeIn();
+		mainNode.fadeIn();
 	}
 
 
-  this.update = function(position, style, type) {
-    console.log('Update bar started');
+	this.update = function(current, total, style, type) {
+		console.log('Update bar started');
 
-    var styleText = 'width: ' + position + '%;';
-    self.barNode.attr('style', styleText);
+		captionNode.empty();
+		captionNode.text('Loading ' + caption + ' issues: ' + current + ' of ' + total);
+		// captionNode = $('<span>Loading ' + caption + ' issues..<span>');
 
-    if (position > 0) {
-      self.node.addClass('active'); 
-    }
-    if (style) {
-      self.node.removeClass('progress-striped');
-      self.node.addClass('progress-' + style); // striped
-    }
-    if (type) {
-      self.node.removeClass('progress-info progress-success progress-warning progress-danger'); // info, success, warning, danger
-      self.node.addClass('progress-' + type); // info, success, warning, danger
-    }
-    if (position == 0 || position == 100) {
-      console.log(' - Removing style active');
-      self.node.removeClass('active'); 
-      self.node.removeClass('progress-info progress-success progress-warning progress-danger'); // info, success, warning, danger
-      self.node.addClass('progress-success');
+		var position = Math.round((current/total)*100 );
 
-    }
-  }
+		var styleText = 'width: ' + position + '%;';
+		barSubNode.attr('style', styleText);
 
-  this.hide = function(remove) {
-    self.node.fadeOut(self.delay, 
-                      function(){ 
-                        if (remove) {
-                          $(this).remove();
-                        }
-                       
-                     });
-    self.isActive = false;
+		if (position > 0) {
+		  barNode.addClass('active'); 
+		}
+		if (style) {
+		  barNode.removeClass('progress-striped');
+		  barNode.addClass('progress-' + style); // striped
+		}
+		if (type) {
+		  barNode.removeClass('progress-info progress-success progress-warning progress-danger'); // info, success, warning, danger
+		  barNode.addClass('progress-' + type); // info, success, warning, danger
+		}
+		if (position == 0 || position == 100) {
+		  console.log(' - Removing style active');
+		  barNode.removeClass('active'); 
+		  barNode.removeClass('progress-info progress-success progress-warning progress-danger'); // info, success, warning, danger
+		  barNode.addClass('progress-success');
+		}
+	}
+
+  this.hide = function() {
+    mainNode.fadeOut(delay);
   }
 
   this.remove = function() {
-    self.node.remove();
-    self.isActive = false;
+    mainNode.remove();
   }
 
 }

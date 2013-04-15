@@ -74,7 +74,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 	this.eventHandler.projectBatchLoadStarted = function (project) {
-		self.appView.createBatchLoadProgressBar(project.id, project.title);
+		self.appView.createBatchLoadProgressBar(project);
 		console.log('Calling project summary blank for ' + project.id);
 		self.appView.projectSummaryView.createBlank(project);
 	}
