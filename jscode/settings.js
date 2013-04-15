@@ -8,9 +8,51 @@ function Settings() {
 	    queryURL: 'http://dintrsrv01.domain.corp/issues',
 	    userKey: '2da4605ebea54748909b946d3c9d2bd5c04c4837',
 	    projects: [
-	      { id: 'isori',
+
+	    // ПРИМЕР НАСТРОЙКИ ПРОЕКТА
+		// { 
+		// 	ID проекта, такой как в редмайне
+		// 	id: 'isori', 				
+		
+		// 	название проекта, каким будет отображаться на странице
+		// 	title: 'FPK Loyalty',
+		
+		// 	ID трекеров, которые вас интересуют
+		// 		Например: 1 - Bug, 2 - Feature
+		// 		Все трекеры ниже в Redmine Settings
+		// 	issueTrackers: [1, 2, 10], 
+
+		// 	Группы статусов, по которым собирается статистика
+		// 		"title" - их названия
+		// 		"includes" - статусы редмайна, которые следует включать в группы
+		// 			Например, 1 - New, 2 - In Progress
+		// 			Все статусы ниже в Redmine Settings
+		// 	customStatuses: [
+		// 						{title: 'Development', 	includes: [1, 2, 19]},
+		// 						{title: 'Testing', 		includes: [3, 6, 18]},
+		// 						{title: 'Blocked', 		includes: [4, 14]},
+		// 						{title: 'Done', 		includes: [5]}
+		// 					]
+		// },
+
+	      { 
+	      	// ID проекта, такой как в редмайне
+	      	id: 'isori', 				
+
+	      	// название проекта, каким будет отображаться на странице
 	        title: 'FPK Loyalty',
-			issueTrackers: [1, 2, 10],
+
+	      	// 	ID трекеров, которые вас интересуют
+	      		// Например: 1 - Bug, 2 - Feature
+	      		// Все трекеры ниже в Redmine Settings
+
+			issueTrackers: [1, 2, 10], 
+
+			// 	Группы статусов, по которым собирается статистика
+				//  title - их названия
+				//  includes - статусы редмайна, которые следует включать в группы
+	      		// Например, 1 - New, 2 - In Progress
+	      		// Все статусы ниже в Redmine Settings
 			customStatuses: [
 				{title: 'Development', 	includes: [1, 2, 19]},
 				{title: 'Testing', 		includes: [3, 6, 18]},
@@ -66,21 +108,18 @@ function Settings() {
 			// 	{title: 'Done', 		includes: [5]}
 			// ]
 	  //     }
-	      
-
-
 	    ],
 	    
     },
 
 
-	this.appSettings = {
-		appStatus: 'testing'
-	},
-
 	this.redmineSettings = {
-		userKey:            '2da4605ebea54748909b946d3c9d2bd5c04c4837',
+	    // Домен редмайн
 		redmineUrl:         'http://dintrsrv01.domain.corp/',
+
+	    // Это ключ, который позволяет вам не логиниться в редмайн
+		userKey:            '2da4605ebea54748909b946d3c9d2bd5c04c4837',
+
 
 		// parametered urls
 		projectsRequestUrl: 'projects',
@@ -128,6 +167,10 @@ function Settings() {
 
 		jsonRequestModifier: '.json'
 	}
+
+	this.appSettings = {
+		appStatus: 'testing'
+	},
 
 	// -------------------------------------------------------------------
 	// Methods -----------------------------------------------------------
