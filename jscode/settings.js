@@ -118,7 +118,7 @@ function Settings() {
 		redmineUrl:         'http://dintrsrv01.domain.corp/',
 
 	    // Это ключ, который позволяет вам не логиниться в редмайн
-		userKey:            '2da4605ebea54748909b946d3c9d2bd5c04c4837',
+		userKey:            '',
 
 
 		// parametered urls
