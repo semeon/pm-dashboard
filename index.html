@@ -63,7 +63,7 @@
           <div id="summaryDiv">
 
 			<div class="hero-unit" id="greatingsMessage">
-				<h1>Greetings, human!</h1>
+				<h1>Greetings!</h1>
 				<br/>
 				<p>Click the button below to collect statistics for your projects:</p>
 				<ul id="userProjectList"></ul>
@@ -72,7 +72,7 @@
 					<a 	href="#" 
 						class="btn btn-primary btn-large hide" 
 						onclick="app.eventHandler.startButtonClick();"
-						id="startLoadingBtn">Start loading »</a>
+						id="startLoadingBtn">Start »</a>
 				</p>
 			</div>
 
@@ -154,6 +154,7 @@
 		Первое, redmineUrl - это домен редмайна, от http:// до слэша на конце.
 		<br/>
 		Второе, userKey - это ваш личный код, ключ доступа к API, необходимый для авторизации запросов. Его можно найти на странице My Account (Моя учетная запись).
+		Если userKey не указан, то вам нужно сначала влогиниться в Redmine по указанному домену, и только потом открывать приложение.
 	</p>
 
     <h4>Как оно работает?</h4>
