@@ -6,29 +6,29 @@ function Settings() {
 	    queryURL: 'http://dintrsrv01.domain.corp/issues',
 	    userKey: '2da4605ebea54748909b946d3c9d2bd5c04c4837',
 	    projects: [
-	  //     { id: 'isori',
-	  //       title: 'FPK Loyalty',
-	  //       queryTitles: ['In Development', 'Ready for Deploy', 'Ready for QA', 'Total'],
-	  //       versions: [
-	  //         { version: '9.0', 
-	  //           queries: [           '464',              '462',          '463',   '461']
-	  //         },
-	  //         { version: '9.1', 
-	  //           queries: [           '519',              '520',          '521',   '502']
-	  //         },
-	  //         { version: '10.0', 
-	  //           queries: [           '515',              '516',          '517',   '505']
-	  //         }
-	  //       ],
-			// issueTrackers: [1, 2, 10],
-			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2, 19]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18]},
-			// 	{title: 'Blocked', 		includes: [4, 14]},
-			// 	{title: 'Done', 		includes: [5]}
-			// ]
-	  //     }
-	  //     ,
+	      { id: 'isori',
+	        title: 'FPK Loyalty',
+	        queryTitles: ['In Development', 'Ready for Deploy', 'Ready for QA', 'Total'],
+	        versions: [
+	          { version: '9.0', 
+	            queries: [           '464',              '462',          '463',   '461']
+	          },
+	          { version: '9.1', 
+	            queries: [           '519',              '520',          '521',   '502']
+	          },
+	          { version: '10.0', 
+	            queries: [           '515',              '516',          '517',   '505']
+	          }
+	        ],
+			issueTrackers: [1, 2, 10],
+			customStatuses: [
+				{title: 'Development', 	includes: [1, 2, 19]},
+				{title: 'Testing', 		includes: [3, 6, 18]},
+				{title: 'Blocked', 		includes: [4, 14]},
+				{title: 'Done', 		includes: [5]}
+			]
+	      }
+	      ,
 
 	      { id: 'fpkloyalfeedback',
 	        title: 'FPK Loyalty External',
@@ -46,27 +46,27 @@ function Settings() {
 				{title: 'Done', 		includes: [5]}
 			]
 	      }
-	      ,
+	  //     ,
 
-	      { id: 'rsalfr',
-	        title: 'RS Alfresco',
-	        queryTitles: ['Total' ],
-	        versions: [
-	          { version: '2.0', 
-	            queries: ['435']
-	          },
-	          { version: '3.0', 
-	            queries: ['434']
-	          }
-	        ],
-			issueTrackers: [1, 2, 10],
-			customStatuses: [
-				{title: 'Development', 	includes: [1, 2, 19]},
-				{title: 'Testing', 		includes: [3, 6, 18]},
-				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [5]}
-			]
-	      }
+	  //     { id: 'rsalfr',
+	  //       title: 'RS Alfresco',
+	  //       queryTitles: ['Total' ],
+	  //       versions: [
+	  //         { version: '2.0', 
+	  //           queries: ['435']
+	  //         },
+	  //         { version: '3.0', 
+	  //           queries: ['434']
+	  //         }
+	  //       ],
+			// issueTrackers: [1, 2, 10],
+			// customStatuses: [
+			// 	{title: 'Development', 	includes: [1, 2, 19]},
+			// 	{title: 'Testing', 		includes: [3, 6, 18]},
+			// 	{title: 'Blocked', 		includes: [4, 14]},
+			// 	{title: 'Done', 		includes: [5]}
+			// ]
+	  //     }
 	  //     ,
 
 	  //     { id: 'fpkloyalwebsrv',

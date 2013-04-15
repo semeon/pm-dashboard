@@ -73,21 +73,40 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.switchFromGreatingsToPleaseWait();
 	}
 
-	this.eventHandler.projectBatchLoadStarted = function (project) {
-		self.appView.createBatchLoadProgressBar(project);
-		console.log('Calling project summary blank for ' + project.id);
-		self.appView.projectSummaryView.createBlank(project);
+
+	// Version issues load events
+	this.eventHandler.versionBatchLoadStarted = function (project, version) {
+		self.appView.showBatchLoadProgressBar(project, version);
+		console.log('Calling create summary blank for ' + project.id + ' / ' + version.name);
+		self.appView.createSummary(project, version);
 	}
 
-	this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
-		console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
-		self.appView.updateBatchLoadProgresBar(projectId, current, total);
+	this.eventHandler.versionBatchLoadUpdated = function (project, version, current, total) {
+		console.log('Event: batch issue load updated for ' + project.id + ' / ' + version.name + '. Progress: ' + current + '/' + total);
+		self.appView.updateBatchLoadProgresBar(project, version, current, total);
 	}
 
-	this.eventHandler.projectBatchLoadCompleted = function (project) {
-		self.dataController.createDataStructureFromAllIssues(project);
-		self.appView.projectSummaryView.update(project);
+	this.eventHandler.versionBatchLoadCompleted = function (project, version) {
+		self.dataController.createDataStructureFromAllIssues(project, version);
+		self.appView.updateSummary(project, version);
 	}
+
+
+	// this.eventHandler.projectBatchLoadStarted = function (project) {
+	// 	self.appView.showBatchLoadProgressBar(project);
+	// 	console.log('Calling project summary blank for ' + project.id);
+	// 	self.appView.projectSummaryView.createBlank(project);
+	// }
+
+	// this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
+	// 	console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
+	// 	self.appView.updateBatchLoadProgresBar(projectId, current, total);
+	// }
+
+	// this.eventHandler.projectBatchLoadCompleted = function (project, version) {
+	// 	self.dataController.createDataStructureFromAllIssues(project, version);
+	// 	self.appView.projectSummaryView.update(project);
+	// }
 
 
 

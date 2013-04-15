@@ -10,32 +10,62 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	this.requestsProgressBar = new ProgressBar('statusMessages', 'requestsProgressBar');
 
 	this.batchLoadBars = {};
+	this.projectSummaries = {};
 
 
 	this.projectSummaryView = new ProjectSummaryView(self);
 
 // -------------------------------------------------------------------------------------------
-// Batch load page
+// Summaries
 // 
 
-	this.createBatchLoadProgressBar = function (project) {
+	this.createSummary = function(project, version) {
 
-		var rootId = 'statusMessages';
-		var pb = new ProgressBar(rootId, project.title);
-		self.batchLoadBars[project.id] = pb;
+		var id = project.id;
+		var summary = self.projectSummaries[id];
 
+		if (summary == undefined) {
+			console.log('Creating summary table for ' + project.id);
+
+			summary = new ProjectSummaryView(project);
+			self.projectSummaries[id] = summary;
+
+			summary.createHeader();
+		}
+	}
+
+
+
+	this.updateSummary = function(project, version) {
+		self.projectSummaries[project.id].updateVersion(version);
+	}
+
+
+// -------------------------------------------------------------------------------------------
+// Load statuses
+// 
+
+	this.showBatchLoadProgressBar = function (project, version) {
+		console.log('Creating progress bar position for ' + project.id + ' / ' + version.name);
+
+		var id = project.id + '_' + version.id;
+		var pb = self.batchLoadBars[id];
+		if (pb == undefined) {
+			var rootId = 'statusMessages';
+			pb = new ProgressBar(rootId, project.title + ' / ' + version.name);
+			self.batchLoadBars[id] = pb;
+		}
 		pb.show('striped');
 	}
 
-	this.updateBatchLoadProgresBar = function (projectId, current, total) {
-		var pb = self.batchLoadBars[projectId];
-		console.log('Updating progress bar position for ' + projectId);
+	this.updateBatchLoadProgresBar = function (project, version, current, total) {
+		var pb = self.batchLoadBars[project.id + '_' + version.id];
+		console.log('Updating progress bar position for ' + project.id + ' / ' + version.name);
 
 		pb.update(current, total, 'striped');
 		if (current == total) {
 			pb.hide();
 		}
-	
 	}
 
 
