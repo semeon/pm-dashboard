@@ -2,7 +2,7 @@ function Settings() {
 
 	var self = this;
 
-	console.log = function() {}
+	// console.log = function() {}
 
 	this.userSettings = {
 	    queryURL: 'http://dintrsrv01.domain.corp/issues',
@@ -29,10 +29,10 @@ function Settings() {
 	        ],
 			issueTrackers: [1, 2, 10],
 			customStatuses: [
-				{title: 'Development', 	includes: [1, 2, 19]},
-				{title: 'Testing', 		includes: [3, 6, 18]},
+				{title: 'Not Started', 	includes: [1]},
+				{title: 'In Progress', 	includes: [2, 19, 6, 18]},
 				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [5]}
+				{title: 'Done', 		includes: [3, 5, 15]}
 			]
 	      }
 	  //     ,
