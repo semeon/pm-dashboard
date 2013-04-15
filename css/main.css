@@ -6,3 +6,24 @@
 body {
   margin-top: 60px!important;
 }
+
+.border-left {
+    border-left: 1px solid #e3e3e3;
+}
+
+.border-right {
+    border-right: 1px solid #e3e3e3;
+}
+
+.separator {
+    height: 100%;
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.separator .separator-line{
+    height: 100%;
+    width: 1px;
+    border-right: 1px solid #e3e3e3;
+}

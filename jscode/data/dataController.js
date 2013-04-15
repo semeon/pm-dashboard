@@ -39,7 +39,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		// 	 - Version
 		//		- Custom Status
 
-		console.log('Creating data structure for ' + project.id);
+		console.log('Creating data structure for ' + project.id + ' / ' + version.name);
 
 		var supportedStatuses = [];
 		for (var cs=0; cs<project.customStatuses.length; cs++) {
@@ -132,8 +132,11 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 	    // Request
 		function requestVersions (project, requestUrl) {
+
+			var requestParameters = { status: 'open'};
+
 			genericRequest( requestUrl, 
-							{}, 
+							requestParameters, 
 							function (data) {
 								processVersions(data, project, loadIssues);
 							});
@@ -182,7 +185,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 // --------------------------------------------------------------------------------------------------------
 
 	function batchLoadVersionIssuesData(project, version) {
-		console.log('!!! Starting batch load for ' + project.id + ' / ' + version.name);
+		console.log('Starting batch load for ' + project.id + ' / ' + version.name);
 
 	    var requestUrl =  redmineSettings.redmineUrl + 
 	                      redmineSettings.projectDataUrl + 

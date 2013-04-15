@@ -5,21 +5,16 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 	this.eventHandler = eventHandler;
 	this.userSettings = userSettings;
 
-	this.initialLoadAlert    = new AppAlert('sysMessages', 'initialLoadAlert');
-	this.requestStatusAlert  = new AppAlert('statusMessages', 'customRequestAlert');
-	this.requestsProgressBar = new ProgressBar('statusMessages', 'requestsProgressBar');
-
 	this.batchLoadBars = {};
 	this.projectSummaries = {};
 
-
-	this.projectSummaryView = new ProjectSummaryView(self);
 
 // -------------------------------------------------------------------------------------------
 // Summaries
 // 
 
 	this.createSummary = function(project, version) {
+		console.log('Update progress bar for ' + project.id + ' / ' + version.name);
 
 		var id = project.id;
 		var summary = self.projectSummaries[id];
@@ -27,11 +22,12 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 		if (summary == undefined) {
 			console.log('Creating summary table for ' + project.id);
 
-			summary = new ProjectSummaryView(project);
+			summary = new ProjectSummaryView(project, eventHandler);
 			self.projectSummaries[id] = summary;
 
 			summary.createHeader();
 		}
+
 	}
 
 
@@ -45,8 +41,8 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 // Load statuses
 // 
 
-	this.showBatchLoadProgressBar = function (project, version) {
-		console.log('Creating progress bar position for ' + project.id + ' / ' + version.name);
+	this.updateBatchLoadProgressBar = function (project, version, current, total) {
+		console.log('Update progress bar for ' + project.id + ' / ' + version.name);
 
 		var id = project.id + '_' + version.id;
 		var pb = self.batchLoadBars[id];
@@ -54,18 +50,10 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 			var rootId = 'statusMessages';
 			pb = new ProgressBar(rootId, project.title + ' / ' + version.name);
 			self.batchLoadBars[id] = pb;
+			pb.show('striped');
 		}
-		pb.show('striped');
-	}
-
-	this.updateBatchLoadProgresBar = function (project, version, current, total) {
-		var pb = self.batchLoadBars[project.id + '_' + version.id];
-		console.log('Updating progress bar position for ' + project.id + ' / ' + version.name);
-
 		pb.update(current, total, 'striped');
-		if (current == total) {
-			pb.hide();
-		}
+
 	}
 
 
@@ -77,15 +65,6 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 		$('#greatingsMessage').addClass('hide');
 		// $('#pleaseWaitMessage').removeClass('hide');
 		// $('#pleaseWaitMessage').delay(4000).fadeOut();
-	}
-
-	this.displayItem = function(selector) {
-		$(selector).fadeIn();
-	}
-
-	this.hideItem = function(selector) {
-		// $(selector).addClass('hide');
-		$(selector).fadeOut();
 	}
 
 	this.listProjectsOnTheGreatingScreen = function() {

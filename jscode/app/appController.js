@@ -14,7 +14,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 // -------------------------------------------------------------------------------------------
 // Event Handlers
-//
+// -------------------------------------------------------------------------------------------
+
 	$(document).ajaxStart(
 		function() {
 			// if (initialLoad) {
@@ -73,40 +74,32 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.switchFromGreatingsToPleaseWait();
 	}
 
+	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
+		console.log('Refresh project summary button clicked for ' + project.id);
+		self.dataController.reloadProductData(project);
+	}
 
 	// Version issues load events
 	this.eventHandler.versionBatchLoadStarted = function (project, version) {
-		self.appView.showBatchLoadProgressBar(project, version);
+		console.log('Event:version issues load started for' + project.id + ' / ' + version.name );
+		self.appView.updateBatchLoadProgressBar(project, version, 0, 'none');
+
 		console.log('Calling create summary blank for ' + project.id + ' / ' + version.name);
 		self.appView.createSummary(project, version);
 	}
 
 	this.eventHandler.versionBatchLoadUpdated = function (project, version, current, total) {
-		console.log('Event: batch issue load updated for ' + project.id + ' / ' + version.name + '. Progress: ' + current + '/' + total);
-		self.appView.updateBatchLoadProgresBar(project, version, current, total);
+		console.log('Event: version issues load updated for ' + project.id + ' / ' + version.name + '. Progress: ' + current + '/' + total);
+
+		self.appView.updateBatchLoadProgressBar(project, version, current, total);
 	}
 
 	this.eventHandler.versionBatchLoadCompleted = function (project, version) {
+		console.log('Event: version issues load completed for ' + project.id + ' / ' + version.name);
+
 		self.dataController.createDataStructureFromAllIssues(project, version);
 		self.appView.updateSummary(project, version);
 	}
-
-
-	// this.eventHandler.projectBatchLoadStarted = function (project) {
-	// 	self.appView.showBatchLoadProgressBar(project);
-	// 	console.log('Calling project summary blank for ' + project.id);
-	// 	self.appView.projectSummaryView.createBlank(project);
-	// }
-
-	// this.eventHandler.projectBatchLoadUpdated = function (projectId, current, total) {
-	// 	console.log('Event: batch issue load updated for ' + projectId + '. Progress: ' + current + '/' + total);
-	// 	self.appView.updateBatchLoadProgresBar(projectId, current, total);
-	// }
-
-	// this.eventHandler.projectBatchLoadCompleted = function (project, version) {
-	// 	self.dataController.createDataStructureFromAllIssues(project, version);
-	// 	self.appView.projectSummaryView.update(project);
-	// }
 
 
 
@@ -123,22 +116,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.showAlert('Error', message, 'error')
 	}
 
-	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
-		console.log('Refresh project summary button clicked for ' + project.id);
-		// self.dataController.reloadProductData(project);
-	}
 
-
-// -------------------------------------------------------------------------------------------
-// OLD
-// -------------------------------------------------------------------------------------------
-
-	this.eventHandler.onProjectDataUpdate = function(projectId, versionId, groupName, newValue) {
-		if (!initialLoad) {
-			console.log('Project data updated for project/version/group: ' + projectId + '/' + versionId + '/' + groupName );
-			self.appView.projectSummaryView.updateCell(projectId, versionId, groupName, newValue);
-		}
-	}
 
 
 // -------------------------------------------------------------------------------------------
@@ -156,91 +134,10 @@ function AppController(userSettings, appSettings, redmineSettings){
 	}
 
 
-// ===========================================================================================
+// -------------------------------------------------------------------------------------------
 // PRIVATE
-// ===========================================================================================
+// -------------------------------------------------------------------------------------------
 
 
-	// -------------------------------------------------------------------------------------------
-	// Create project stat blank
-	// -------------------------------------------------------------------------------------------
-
-
-
-
-
-	// -------------------------------------------------------------------------------------------
-	// Create custom project stat blank
-	// -------------------------------------------------------------------------------------------
-	// function createProjectSummaryBlank (project) {
-	// 	self.appView.createProjectSummary(project.id, project.title, project.queryTitles);
-
-	// 	for(var v=0; v<project.versions.length; v++) {
-	// 		var versionObj = project.versions[v];
-	// 		var rowNode = self.appView.createProjectTableRowNode(project.id, versionObj.version);
-
-	// 		for(var q=0; q<project.queryTitles.length; q++) {
-	// 			var queryId = versionObj.queries[q];
-	// 			if (queryId == undefined) { queryId = 'none'; }
-	// 			self.appView.appendQueryResultNode(rowNode, project.id, versionObj.version, queryId);
-	// 		}
-	// 	}    
-	// }
-	// -------------------------------------------------------------------------------------------
-
-	// -------------------------------------------------------------------------------------------
-	// Update custom query results
-	// -------------------------------------------------------------------------------------------
-	function updateProjectSummaryBlank (project) {
-		var queriesNumber = project.queryTitles.length;
-		var versionsNumber = project.versions.length;
-
-		function processRequestResult (data, requestParams) {
-			var linkHref =  redmineSettings.redmineUrl + 
-							redmineSettings.issuesRequestUrl +
-							'?query_id=' + requestParams.query_id + 
-							'&project_id=' + requestParams.project_id;
-			self.appView.showQueryResult(requestParams.query_id, data.total_count, linkHref);
-		}
-
-
-		for(var v=0; v<versionsNumber; v++) {
-			var versionObj = project.versions[v];
-			var queries = versionObj.queries;
-
-			for(var q=0; q<queriesNumber; q++) {
-				var queryId = queries[q];
-				if (queryId != undefined) {
-					self.dataController.getQueryResult(project.id, queryId, processRequestResult);
-				}
-			}
-		}
-	}
-	// -------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-	// DEBUG
-	// ---------------------------------------------------
-
-
-
-	// Auto update 
-	function autoRefresh() {
-		setInterval(autoRefresh, 60000);
-	}
-
-	this.debugEvent = function() {
-
-		self.appView.clearProjectSummaryRoot();
-
-		for(var p=0; p<userSettings.projects.length; p++) {
-			createProjectSummaryBlank(userSettings.projects[p].id);
-		}
-	}
 
 }
