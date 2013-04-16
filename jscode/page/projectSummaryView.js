@@ -1,14 +1,16 @@
 function ProjectSummaryView ( prj, eventHandler, rs ) {
 
     var self = this;
+    var project = prj;
+
     var projectSummaryRootSelector = '#summaryDiv';
     var rootNode = $(projectSummaryRootSelector);
 
     var projectSummaryNode;
     var projectSummaryBodyNode;
+    var projectSummaryTableId = 'summary_table_' + project.id;
 
 
-    var project = prj;
     var versionRows = {};
 
     this.createHeader = function () {
@@ -75,11 +77,11 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
         function createProjectStandardTableNode() {
 
             var tableNodeHtml = '';
-            tableNodeHtml = tableNodeHtml + '<table id="summary_' + project.id + 
-                                            '" class="table table-bordered table-condensed table-hover">';
+            tableNodeHtml = tableNodeHtml + '<table id="' + projectSummaryTableId + 
+                                            '" class="table table-bordered table-condensed table-hover sortable">';
             // tableNodeHtml = tableNodeHtml +   '<caption>Number of issues in corresponding versions</caption>';
             tableNodeHtml = tableNodeHtml +   '<thead><tr>';
-            tableNodeHtml = tableNodeHtml +     '<th width="100">Version</th>';
+            tableNodeHtml = tableNodeHtml +     '<th width="120">Version</th>';
             tableNodeHtml = tableNodeHtml +     '<th width="100">Due Date</th>';
 
             var columns = project.customStatuses;
@@ -98,6 +100,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             projectSummaryBodyNode = $('<tbody></tbody>');
             tableNode.append(projectSummaryBodyNode);
 
+            rootNode.append('<br/>');
             rootNode.append('<br/>');
         }
         projectSummaryNode.fadeIn();
@@ -139,11 +142,16 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             if (value > 0) {
                 var modalId = 'modal_' + version.id + '_' + c;
                 valueHtml = '<a href="#' + modalId + 
-                            '" role="button" class="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
+                            '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
                             value + '</a>';
 
                 var title = 'Issues of ' + project.title + ' / ' + version.name + ' / ' + columns[c].title;
-                projectSummaryBodyNode.append(addModal(group, modalId, title));
+                var dataTableId = 'datatable_' + modalId;
+                projectSummaryBodyNode.append(addModal(group, modalId, title, dataTableId));
+
+                $('#' + dataTableId).dataTable({
+                                                'bPaginate': false
+                                                });        
             }
 
 
@@ -151,7 +159,17 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
         }
         row.append(html).fadeIn();
 
-        function addModal(group, id, title) {
+        // $('#' + projectSummaryTableId).dataTable({
+        //                                 'aoColumnDefs': [
+        //                                                 { "sType": "html", "aTargets": [ 0 ] }
+        //                                                     ],
+        //                                 'bPaginate': false,
+        //                                 'bFilter': false,
+        //                                 'bDestroy': true
+        //                                 });        
+
+
+        function addModal(group, id, title, dataTableId) {
             var modalCode = '';
             modalCode = modalCode + '<div id="' + id + '" class="modal hide fade" tabindex="-1" ' +
                                     ' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">';
@@ -162,13 +180,13 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             modalCode = modalCode +     '</div>';
             modalCode = modalCode +     '<div class="modal-body">';
 
-            modalCode = modalCode +         '<table class="table table-bordered table-condensed table-hover">';
+            modalCode = modalCode +         '<table id="' + dataTableId + '" class="table table-bordered table-condensed table-hover">';
             modalCode = modalCode +             '<thead>';
             modalCode = modalCode +                 '<th>#</th>';
             modalCode = modalCode +                 '<th>Status</th>';
             modalCode = modalCode +                 '<th>Tracker</th>';
             modalCode = modalCode +                 '<th>Subject</th>';
-            modalCode = modalCode +                 '<th>Assigned To</th>';
+            modalCode = modalCode +                 '<th>Assignee</th>';
             modalCode = modalCode +             '</thead>';
             modalCode = modalCode +             '<tbody>';
 

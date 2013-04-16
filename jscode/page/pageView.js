@@ -30,8 +30,6 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 	}
 
-
-
 	this.updateSummary = function(project, version) {
 		self.projectSummaries[project.id].updateVersion(version);
 	}

@@ -31,6 +31,8 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 	$(document).ajaxStop(
 		function() {
+
+
 			// if (initialLoad) {
 			// 	initialLoad = false;
 
