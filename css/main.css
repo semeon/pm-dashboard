@@ -15,15 +15,21 @@ body {
     border-right: 1px solid #e3e3e3;
 }
 
-.separator {
-    height: 100%;
-    text-align: center;
-    margin-top: 0px;
-    margin-bottom: 0px;
+
+.modal {
+    /* new custom width */
+    width: 1200px;
+    /* must be half of the width, minus scrollbar on the left (30px) */
+    margin-left: -600px;
 }
 
-.separator .separator-line{
-    height: 100%;
-    width: 1px;
-    border-right: 1px solid #e3e3e3;
+
+td.align-right {
+    text-align: right!important;
+    padding-right: +10px!important;
+}
+
+td.align-left {
+    text-align: left!important;
+    padding-left: +10px!important;
 }

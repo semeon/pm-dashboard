@@ -44,6 +44,11 @@ function Settings() {
 				{title: 'Testing', 		includes: [3, 6, 18]},
 				{title: 'Blocked', 		includes: [4, 14]},
 				{title: 'Done', 		includes: [5]}
+			],
+			customQueries: [
+				{id: 515, title: '10.0: In Development'},
+				{id: 516, title: '10.0: Ready for Deploy'},
+				{id: 517, title: '10.0: Ready for QA'}
 			]
 	      }
 	      ,

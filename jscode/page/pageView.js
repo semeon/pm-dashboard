@@ -22,7 +22,7 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 		if (summary == undefined) {
 			console.log('Creating summary table for ' + project.id);
 
-			summary = new ProjectSummaryView(project, eventHandler);
+			summary = new ProjectSummaryView(project, eventHandler, redmineSettings);
 			self.projectSummaries[id] = summary;
 
 			summary.createHeader();
@@ -71,10 +71,10 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 		var projects = userSettings.projects;
 		var root =  $('#userProjectList');
 
-		var href = redmineSettings.redmineUrl + redmineSettings.projectsRequestUrl;
 
 		if (projects.length > 0) {
 			for (var i=0; i<projects.length; i++) {
+				var href = redmineSettings.redmineUrl + redmineSettings.projectsRequestUrl;
 				href = href + '\\' + projects[i].id;
 				root.append('<li><a href="' + href + '" target="_blank">' + projects[i].title + '</li>');
 			}

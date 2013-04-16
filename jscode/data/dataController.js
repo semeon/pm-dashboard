@@ -53,21 +53,15 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			console.log('------------------------------------------------------');
 			console.log('Processing issue[' + i + '] #' + issue.id);
 
-			if (issue.id == '18271') {
-				console.log('********************************');
-				console.log('********************************');
-				console.log('********************************');
-				console.log('********************************');
-			}
 			var issueStatus = issue.status.id;
 			var issueTracker = issue.tracker.id;
 
-			if (issue.id == '18271') console.log('- Checking tracker and status..');
+			console.log('- Checking tracker and status..');
 			if ( $.inArray(issueTracker, project.issueTrackers) > -1 
 					&&
 				 $.inArray(issueStatus, supportedStatuses) > -1 ) {
 
-				if (issue.id == '18271') console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
+				console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
 
 				// Issue group ---------------------------------
 				var issueGroupname = '';
@@ -78,15 +72,15 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 						continue;
 					}
 				}
-				if (issue.id == '18271') console.log('- Checking if group ' + issueGroupname + ' does exist..');
+				console.log('- Checking if group ' + issueGroupname + ' does exist..');
 				var group = version.issueGroups[issueGroupname];
 				if (group.issues == undefined) {
-					group.issues = {};
+					group.issues = [];
 				}
 
-				if (issue.id == '18271') console.log('-- Yes. Increasing counter..');
+				console.log('-- Yes. Increasing counter..');
 				group.count++;
-				group.issues[issue.id] = issue;
+				group.issues.push(issue);
 
 			} else {
 				// console.log(' - Doesn\'t fit. Next..');
@@ -118,6 +112,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			dataProject.allIssues = [];
 			dataProject.customStatuses = userProject.customStatuses;
 			dataProject.issueTrackers = userProject.issueTrackers;
+			dataProject.customQueries = userProject.customQueries;
 
 		} else {
 			console.log(' - It does, proceeding with it.');
@@ -217,6 +212,17 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 			console.log('Requesting issues page ' + offset + ' for ' + project.id + ' / ' + version.name);
 			console.log(' - URL:  ' + requestUrl);
+
+
+			if (version.href == undefined ) {
+				var href = 	redmineSettings.redmineUrl + 
+	                      	redmineSettings.projectDataUrl + 
+	                      	project.id + '/' +
+	                      	redmineSettings.issuesRequestUrl + '?';
+				href = href + '&fixed_version_id=' + version.id;
+				href = href + '&group_by=status';
+				version.href = href;
+			}
 
 			genericRequest( requestUrl, 
 							requestParameters, 
