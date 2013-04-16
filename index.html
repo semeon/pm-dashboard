@@ -44,12 +44,19 @@
         <div class="container-fluid">  
        	  <a class="brand" href="#">Redmine dashboard</a>
           <div class="nav-collapse collapse">
-            <ul class="nav pull-right">
+            <ul class="nav ">
               <li classz="active">
+				<a href="http://dintrsrv01.domain.corp/" target="_blank">Redmine</a>       	  
+              </li>
+           </ul>
+
+            <ul class="nav pull-right">
+              <li class="pull-right">
 				<!-- Button to trigger modal -->
 				<a href="#myModal" role="button" data-toggle="modal">Help <i class="icon-question-sign icon-white"></i></a>       	  
               </li>
            </ul>
+
          </div>
 
         </div>  
@@ -136,7 +143,7 @@
     <h4>Как настроить?</h4>
 	<p>К сожалению, тебе придется редактировать JavaScript. Впрочем, я ведь уже упоминал о программистах?
 		Все что нужно исправить, сосредоточено в одном фале - <code>settings.js</code>.
-		Настройки деляться на две группы:
+		Настройки делятся на две группы:
 	</p>
 	<ul>
 		<li>userSettings - пользовательские настройки </li>
@@ -153,7 +160,7 @@
 		<br/>
 		Первое, redmineUrl - это домен редмайна, от http:// до слэша на конце.
 		<br/>
-		Второе, userKey - это ваш личный код, ключ доступа к API, необходимый для авторизации запросов. Его можно найти на странице My Account (Моя учетная запись).
+		Второе, userKey - это твой личный код, ключ доступа к API, необходимый для авторизации запросов. Его можно найти на странице My Account (Моя учетная запись).
 		Если userKey не указан, то вам нужно сначала влогиниться в Redmine по указанному домену, и только потом открывать приложение.
 	</p>
 

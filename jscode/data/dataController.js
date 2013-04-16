@@ -49,18 +49,25 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 		var issues = version.allIssues;
 		for (var i=0; i<issues.length; i++) {
-			// console.log('------------------------------------------------------');
-			// console.log('Processing issue:  ' + i);
 			var issue = issues[i];
+			console.log('------------------------------------------------------');
+			console.log('Processing issue[' + i + '] #' + issue.id);
+
+			if (issue.id == '18271') {
+				console.log('********************************');
+				console.log('********************************');
+				console.log('********************************');
+				console.log('********************************');
+			}
 			var issueStatus = issue.status.id;
 			var issueTracker = issue.tracker.id;
 
-			// console.log('- Checking tracker and status..');
+			if (issue.id == '18271') console.log('- Checking tracker and status..');
 			if ( $.inArray(issueTracker, project.issueTrackers) > -1 
 					&&
 				 $.inArray(issueStatus, supportedStatuses) > -1 ) {
 
-				// console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
+				if (issue.id == '18271') console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
 
 				// Issue group ---------------------------------
 				var issueGroupname = '';
@@ -71,11 +78,15 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 						continue;
 					}
 				}
-				// console.log('- Checking if group ' + issueGroupname + ' does exist..');
+				if (issue.id == '18271') console.log('- Checking if group ' + issueGroupname + ' does exist..');
 				var group = version.issueGroups[issueGroupname];
+				if (group.issues == undefined) {
+					group.issues = {};
+				}
 
-				// console.log('-- Yes. Increasing counter..');
+				if (issue.id == '18271') console.log('-- Yes. Increasing counter..');
 				group.count++;
+				group.issues[issue.id] = issue;
 
 			} else {
 				// console.log(' - Doesn\'t fit. Next..');
@@ -237,9 +248,10 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 				eventHandler.versionBatchLoadUpdated(project, version, loadedIssuesCount, data.total_count);
 
 				if (loadedIssuesCount < data.total_count) {
-					var nexPageNum = rp.offset + 1;
+					var nexPageNum = currentPageIssueCount;
 					console.log(' - Calling next page load, page ' + nexPageNum);
 					requestIssuesPage(project, version, requestUrl, nexPageNum);
+
 				} else {
 					eventHandler.versionBatchLoadCompleted(project, version);
 				}
