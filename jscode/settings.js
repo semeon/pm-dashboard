@@ -40,7 +40,7 @@ function Settings() {
 	        title: 'FPK Loyalty',
 			issueTrackers: [1, 2, 10], 
 			customStatuses: [
-				{title: 'Development', 	includes: [1, 2, 19]},
+				{title: 'Dev', 	includes: [1, 2, 19]},
 				{title: 'Testing', 		includes: [3, 6, 18]},
 				{title: 'Blocked', 		includes: [4, 14]},
 				{title: 'Done', 		includes: [5]}

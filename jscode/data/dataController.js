@@ -63,7 +63,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 				console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
 
-				// Issue group ---------------------------------
 				var issueGroupname = '';
 				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
 					var groupName = project.customStatuses[cs].title;
@@ -72,15 +71,11 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 						continue;
 					}
 				}
-				console.log('- Checking if group ' + issueGroupname + ' does exist..');
-				var group = version.issueGroups[issueGroupname];
-				if (group.issues == undefined) {
-					group.issues = [];
-				}
 
-				console.log('-- Yes. Increasing counter..');
+				var group = version.issueGroups[issueGroupname];
 				group.count++;
 				group.issues.push(issue);
+				version.issues.push(issue);
 
 			} else {
 				// console.log(' - Doesn\'t fit. Next..');
@@ -103,6 +98,9 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		console.log('Cheking, if the project already exist');
 		if(dataProject == undefined) {
 			console.log(' - It doesn\'t, creating a new one.');
+
+			// Creating a new version
+			// ------------------------------
 			dataProject = {};
 			self.data.projects[userProject.id] = dataProject;
 
@@ -113,6 +111,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			dataProject.customStatuses = userProject.customStatuses;
 			dataProject.issueTrackers = userProject.issueTrackers;
 			dataProject.customQueries = userProject.customQueries;
+			// ------------------------------
 
 		} else {
 			console.log(' - It does, proceeding with it.');
@@ -161,28 +160,30 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			}
 
 			for (var v=0; v<data.versions.length; v++) {
+
+				// Creating a new version
+				// ------------------------------
 				var version = data.versions[v];
 				if (version.status != 'closed') {
 					project.versions[String(version.id)] = version;
 					version.issueGroups = {};
 					version.allIssues = [];
+					version.issues = [];
 
 					for (var cs=0; cs<project.customStatuses.length; cs++ ) {
 						var groupName = project.customStatuses[cs].title;
 						version.issueGroups[groupName] = {};
 						version.issueGroups[groupName].title = groupName;
 						version.issueGroups[groupName].count = 0;
+						version.issueGroups[groupName].issues = [];
 					}
 
 					console.log('Calling load issues by groups');
 					batchLoadVersionIssuesData(project, version);
 				}
+				// ------------------------------
 			}
 			
-			// if (!loadIssues) {
-			// 	console.log('Calling batch load');
-			// 	batchLoadProjectData(project);
-			// }					
 	    }
 	}//----------------------------------------------------------------------------------------------------
 
@@ -275,79 +276,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 
 // --------------------------------------------------------------------------------------------------------
-// BATCH ISSUE LOAD
-// --------------------------------------------------------------------------------------------------------
-
-	// function batchLoadProjectData(project) {
-	// 	console.log('!!! Starting batch load for ' + project.id);
-
-	//     var requestUrl =  redmineSettings.redmineUrl + 
-	//                       redmineSettings.projectDataUrl + 
-	//                       project.id + '/' +
-	//                       redmineSettings.issuesRequestUrl + 
-	//                       redmineSettings.jsonRequestModifier;
-
-	// 	eventHandler.projectBatchLoadStarted(project);
-	//     requestIssuesPage(project, requestUrl, 0);
-
-	//     // Request
-	// 	function requestIssuesPage (project, requestUrl, offset) {
-
-	// 		var requestParameters = { offset: offset, status_id: '*' };
-
-	// 		console.log('Requesting issues page ' + offset + ' for ' + project.id);
-	// 		console.log(' - URL:  ' + requestUrl);
-
-	// 		genericRequest( requestUrl, 
-	// 						requestParameters, 
-	// 						function (data) {
-	// 							processIssuesPage(data, requestParameters, project, requestUrl);
-	// 						});
-	// 	}
-
-	//     // Response preocessing
-	// 	function processIssuesPage (data, rp, project, requestUrl) {
-	// 		console.log('Processing issues page ' + rp.offset + ' for ' + project.id);
-	// 		console.log(data);
-
-	// 		if (data.issues) {
-
-	// 			var prevPagesIssueCount = project.allIssues.length;
-	// 			var currentPageIssueCount = data.issues.length;
-
-	// 			if( (prevPagesIssueCount+currentPageIssueCount) > data.total_count) {
-	// 				var diff = data.total_count - prevPagesIssueCount;
-	// 				var notLoadedIssues = data.issues.slice(currentPageIssueCount-diff);
-	// 				project.allIssues = project.allIssues.concat(notLoadedIssues);
-
-	// 			} else {
-	// 				project.allIssues = project.allIssues.concat(data.issues);
-	// 			}
-
-	// 			var loadedIssuesCount = project.allIssues.length;
-	// 			eventHandler.projectBatchLoadUpdated(project.id, loadedIssuesCount, data.total_count);
-
-	// 			if (loadedIssuesCount < data.total_count) {
-	// 				var nexPageNum = rp.offset + 1;
-	// 				console.log(' - Calling next page load, page ' + nexPageNum);
-	// 				requestIssuesPage(project, requestUrl, nexPageNum);
-	// 			} else {
-	// 				eventHandler.projectBatchLoadCompleted(project);
-	// 			}
-	// 		} else if (data.error) { 
-	// 			console.log(data.error);
-	// 			eventHandler.dataLoadErrorOccured(data.error);
-
-	// 		} else {
-	// 			console.log(data.error);
-	// 			eventHandler.genericErrorOccured('AJAX Data load');
-	// 		}
-	// 	}
-	// }
-
-
-
-// --------------------------------------------------------------------------------------------------------
 // GENERIC REQUEST
 // --------------------------------------------------------------------------------------------------------
 	function genericRequest(requestUri, requestParams, callback) {
@@ -367,119 +295,6 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		         );
 
 	}  
-
-//-----------------------------------------------------------------------------------------------------
-// SRTUCTURED ISSUES REQUESTS (DEPRICATED)
-//-----------------------------------------------------------------------------------------------------
-
- 	// ----------------------------------------------------------------------------------------------------
-	function loadVersion(project, version) {
-
-		var requestUrl =  	redmineSettings.redmineUrl + redmineSettings.projectDataUrl + 
-							project.id + '/' + redmineSettings.issuesRequestUrl + 
-							redmineSettings.jsonRequestModifier;
-
-		for (var i=0; i<project.customStatuses.length; i++){
-			var issueGroup = {};
-			version.issueGroups[project.customStatuses[i].title] = issueGroup;
-
-			issueGroup.count = 0;
-
-			issueGroup.title = project.customStatuses[i].title;
-			issueGroup.ver = version.id;
-			issueGroup.prId = project.id;
-			issueGroup.includes = project.customStatuses[i].includes;
-			issueGroup.requestCounter = 0;
-			issueGroup.requestsTotal = project.customStatuses[i].includes.length * project.issueTrackers.length;
-
-			loadTrackersAndStatuses (project, issueGroup);
-		}
-
-		function loadTrackersAndStatuses (project, group) {
-
-			console.log('loadTrackersAndStatuses started for ' + project.id + ' / ' + group.title);
-			var trackers = project.issueTrackers;
-			var standardStatuses = group.includes;
-
-			for (var t=0; t<trackers.length; t++) {
-				var trackerId = trackers[t];
-
-				for (var s=0; s<standardStatuses.length; s++) {
-					var statusId = standardStatuses[s];
-					var requestParams = {
-						fixed_version_id: 	group.ver,
-						status_id: 			statusId,
-						tracker_id: 		trackerId
-					};
-
-					sendIssueStatusRequest( requestUrl, requestParams, group);
-				}
-
-			}
-		}
-
-		// Request
-		function sendIssueStatusRequest (requestUrl, requestParams, group) {
-
-			console.log('Requesting issues for project/version/group/tracker/status_id: ' + 
-						group.prId + '/' + 
-						group.ver + '/' + 
-						group.title + '/' +
-						requestParams.tracker_id + '/' +
-						requestParams.status_id
-						);
-
-			genericRequest( requestUrl, 
-							requestParams, 
-							function (data) {
-								processIssuegroupResponse(data, requestParams, group);
-							});
-		}
-
-		// Response processing
-		function processIssuegroupResponse(responseData, rp, gr) {
-
-			gr.requestCounter += 1;
-
-			if (responseData.total_count || responseData.total_count == 0) {
-				console.log('Processing issues: ' + 
-
-							'prj: ' + gr.prId + ', ' + 
-							'ver: ' + gr.ver + ', ' + 
-							'group: ' + gr.title + ', ' + 
-							'request: ' + gr.requestCounter + ' of ' + gr.requestsTotal + ', ' + 
-							'tracker: ' + rp.tracker_id + ', ' + 
-							'status: ' + rp.status_id + ', ' + 
-							'result: ' + responseData.total_count );
-
-				if (responseData.total_count>0) {
-					console.log(' - EXAMPLE> Tracker: ' + 	
-									responseData.issues[0].tracker.name + ' (' + 
-									responseData.issues[0].tracker.id + '), Status: ' + 
-											responseData.issues[0].status.name + ' (' + 
-											responseData.issues[0].status.id + ')');
-					gr.count += responseData.total_count;
-
-				}
-
-				if(gr.requestCounter == gr.requestsTotal) {
-					console.log('Issue group calculated.');
-					eventHandler.onProjectDataUpdate(gr.prId, gr.ver, gr.title, gr.count);
-				}
-
-			} else if (responseData.error) { 
-				console.log(responseData.error);
-				eventHandler.dataLoadErrorOccured(responseData.error);
-
-			} else {
-				console.log(responseData.error);
-				eventHandler.genericErrorOccured('AJAX Data load');
-			}
-
-		}
-	} // --------------------------------------------------------------------------------------------------
-
-
 
 
 }

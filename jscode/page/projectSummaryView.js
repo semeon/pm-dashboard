@@ -90,8 +90,8 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             for (var c = 0; c<columns.length; c++) {
                 tableNodeHtml = tableNodeHtml +   '<th>' + columns[c].title + '</th>';
             }
-            // tableNodeHtml = tableNodeHtml +     '<th></th>';
 
+            tableNodeHtml = tableNodeHtml +     '<th>Total</th>';
             tableNodeHtml = tableNodeHtml +   '</tr></thead>';
             tableNodeHtml = tableNodeHtml + '</table>';
             var tableNode = $(tableNodeHtml);
@@ -116,21 +116,36 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             versionRows[version.id] = row;
             projectSummaryBodyNode.append(row);
         }
-
         row.fadeOut().empty();
-
-        var cellContent = version.name;
-        if (version.href) {
-            cellContent = '<a href="' + version.href + 
-                           '" target="_blank" title="Click to open issues in a new window">' + 
-                           version.name + ' <i class="icon-search"></i></a>';
-        } 
-
-        console.log('  cellContent: ' + cellContent);
         var html = '';
-        html = html + '<td class="align-right">' + cellContent + '</td>';
+
+
+        // first cell - version title with modal popup
+        // ---------------------------------------------------------------------------
+        // var versionIssuesModalId = 'modal_' + version.id + '_allissues';
+        // var versionIssuesDataTableId = 'datatable_' + versionIssuesModalId;
+        // var cellContent = '<a href="#' + versionIssuesModalId + 
+        //                 '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
+        //                  version.name + '</a>';
+        // var versionIssuesTitle = 'Issues of ' + project.title + ' / ' + version.name;
+
+        // if ( $('#' + versionIssuesModalId) ) $('#' + versionIssuesModalId).remove();
+        // projectSummaryBodyNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
+
+        // $('#' + versionIssuesDataTableId).dataTable({
+        //                                 'bPaginate': false,
+        //                                 'bDestroy': true
+        //                                 });
+
+        // console.log('  cellContent: ' + cellContent);
+        html = html + '<td class="align-right">' + version.name + '</td>';
+
+        // second cell - version due date
+        // ---------------------------------------------------------------------------
         html = html + '<td>' + version.due_date + '</td>';
 
+        // data columns
+        // ---------------------------------------------------------------------------
         var columns = project.customStatuses;
         for (var c = 0; c<columns.length; c++) {
             var group = version.issueGroups[columns[c].title];
@@ -140,6 +155,9 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             var valueHtml = '' + value;
 
             if (value > 0) {
+
+                // value with modal
+                // ---------------------------------------------------------------------------
                 var modalId = 'modal_' + version.id + '_' + c;
                 valueHtml = '<a href="#' + modalId + 
                             '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
@@ -147,79 +165,107 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
                 var title = 'Issues of ' + project.title + ' / ' + version.name + ' / ' + columns[c].title;
                 var dataTableId = 'datatable_' + modalId;
-                projectSummaryBodyNode.append(addModal(group, modalId, title, dataTableId));
+
+                // CREATION OF THE MODAL
+                if ( $('#' + modalId) ) $('#' + modalId).remove();
+                projectSummaryBodyNode.append(addModal(group.issues, modalId, title, dataTableId));
 
                 $('#' + dataTableId).dataTable({
-                                                'bPaginate': false
+                                                'bPaginate': false,
+                                                'bDestroy': true
                                                 });        
             }
-
-
             html = html + '<td>' + valueHtml + '</td>';
         }
+
+        // last cell - total issues number
+        // ---------------------------------------------------------------------------
+        if (version.issues.length > 0) {
+            var versionIssuesModalId = 'modal_' + version.id + '_allissues';
+            var versionIssuesDataTableId = 'datatable_' + versionIssuesModalId;
+            var versionIssuesTitle = 'Issues of ' + project.title + ' / ' + version.name;
+            var cellContent = '<a href="#' + versionIssuesModalId + 
+                            '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
+                             version.issues.length + '</a>';
+
+            if ( $('#' + versionIssuesModalId) ) $('#' + versionIssuesModalId).remove();
+            projectSummaryBodyNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
+
+            $('#' + versionIssuesDataTableId).dataTable({
+                                            'bPaginate': false,
+                                            'bDestroy': true
+                                            });
+
+            console.log('  cellContent: ' + cellContent);
+            html = html + '<td>' + cellContent + '</td>';
+        } else {
+            html = html + '<td>' + version.issues.length + '</td>';
+        }
+
+
+
         row.append(html).fadeIn();
 
-        // $('#' + projectSummaryTableId).dataTable({
-        //                                 'aoColumnDefs': [
-        //                                                 { "sType": "html", "aTargets": [ 0 ] }
-        //                                                     ],
-        //                                 'bPaginate': false,
-        //                                 'bFilter': false,
-        //                                 'bDestroy': true
-        //                                 });        
+    }
 
+    // Creating a modal with list of issues
+    function addModal(issues, id, title, dataTableId) {
+        console.log('Creating modal ' + title);
 
-        function addModal(group, id, title, dataTableId) {
-            var modalCode = '';
-            modalCode = modalCode + '<div id="' + id + '" class="modal hide fade" tabindex="-1" ' +
-                                    ' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">';
+        var modalCode = '';
+        modalCode = modalCode + '<div id="' + id + '" class="modal hide fade" tabindex="-1" ' +
+                                ' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">';
 
-            modalCode = modalCode +     '<div class="modal-header">';
-            modalCode = modalCode +         '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>';
-            modalCode = modalCode +      '<h3 id="myModalLabel">' + title + '</h3>';
-            modalCode = modalCode +     '</div>';
-            modalCode = modalCode +     '<div class="modal-body">';
+        modalCode = modalCode +     '<div class="modal-header">';
+        modalCode = modalCode +         '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>';
+        modalCode = modalCode +      '<h3 id="myModalLabel">' + title + '</h3>';
+        modalCode = modalCode +     '</div>';
+        modalCode = modalCode +     '<div class="modal-body">';
 
-            modalCode = modalCode +         '<table id="' + dataTableId + '" class="table table-bordered table-condensed table-hover">';
-            modalCode = modalCode +             '<thead>';
-            modalCode = modalCode +                 '<th>#</th>';
-            modalCode = modalCode +                 '<th>Status</th>';
-            modalCode = modalCode +                 '<th>Tracker</th>';
-            modalCode = modalCode +                 '<th>Subject</th>';
-            modalCode = modalCode +                 '<th>Assignee</th>';
-            modalCode = modalCode +             '</thead>';
-            modalCode = modalCode +             '<tbody>';
+        modalCode = modalCode +         '<table id="' + dataTableId + '" class="table table-bordered table-condensed table-hover">';
+        modalCode = modalCode +             '<thead>';
+        modalCode = modalCode +                 '<th>#</th>';
+        modalCode = modalCode +                 '<th>Status</th>';
+        modalCode = modalCode +                 '<th>Tracker</th>';
+        modalCode = modalCode +                 '<th>Subject</th>';
+        modalCode = modalCode +                 '<th>Assignee</th>';
+        modalCode = modalCode +             '</thead>';
+        modalCode = modalCode +             '<tbody>';
 
-            for (var i=0; i<group.issues.length; i++) {
-                var issue = group.issues[i];
-                modalCode = modalCode +         '<tr>';
-                modalCode = modalCode +             '<td>';
-                modalCode = modalCode +                 '<a href="' + rs.redmineUrl + 
-                                                                    rs.issuesRequestUrl + '/' + 
-                                                                    issue.id + '" target="_blank">';
-                modalCode = modalCode +                     '#' + issue.id;
-                modalCode = modalCode +                 '</a>';
-                modalCode = modalCode +             '</td>';
-                modalCode = modalCode +             '<td>' + issue.status.name + '</td>';
-                modalCode = modalCode +             '<td>' + issue.tracker.name + '</td>';
-                modalCode = modalCode +             '<td class="align-left">' + issue.subject + '</td>';
-                modalCode = modalCode +             '<td>' + issue.assigned_to.name + '</td>';
-                modalCode = modalCode +         '</tr>';
-            }
+        for (var i=0; i<issues.length; i++) {
+            var issue = issues[i];
+            console.log('  Adding issue #' + issue.id + ' to data table');
+            modalCode = modalCode +         '<tr>';
+            modalCode = modalCode +             '<td>';
+            modalCode = modalCode +                 '<a href="' + rs.redmineUrl + 
+                                                                rs.issuesRequestUrl + '/' + 
+                                                                issue.id + '" target="_blank">';
+            modalCode = modalCode +                     '#' + issue.id;
+            modalCode = modalCode +                 '</a>';
+            modalCode = modalCode +             '</td>';
+            modalCode = modalCode +             '<td>' + issue.status.name + '</td>';
+            modalCode = modalCode +             '<td>' + issue.tracker.name + '</td>';
+            modalCode = modalCode +             '<td class="align-left">' + issue.subject + '</td>';
 
-            modalCode = modalCode +             '<tbody>';
-            modalCode = modalCode +         '</table>';
+            var assignee = 'Nobody';
+            if (issue.assigned_to) assignee = issue.assigned_to.name;
 
-
-            modalCode = modalCode +     '</div>';
-            modalCode = modalCode +     '<div class="modal-footer">';
-            modalCode = modalCode +         '<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>';
-            modalCode = modalCode +     '</div>';
-            modalCode = modalCode + '</div>';
-
-            return $(modalCode);
-
+            modalCode = modalCode +             '<td>' + assignee + '</td>';
+            modalCode = modalCode +         '</tr>';
         }
+
+        modalCode = modalCode +             '<tbody>';
+        modalCode = modalCode +         '</table>';
+
+
+        modalCode = modalCode +     '</div>';
+        modalCode = modalCode +     '<div class="modal-footer">';
+        modalCode = modalCode +         '<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>';
+        modalCode = modalCode +     '</div>';
+        modalCode = modalCode + '</div>';
+
+        return $(modalCode);
+
     }
 
 
