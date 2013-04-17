@@ -25,7 +25,7 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 			summary = new ProjectSummaryView(project, eventHandler, redmineSettings);
 			self.projectSummaries[id] = summary;
 
-			summary.createHeader();
+			summary.create();
 		}
 
 	}
