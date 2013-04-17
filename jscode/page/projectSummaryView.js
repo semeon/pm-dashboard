@@ -91,7 +91,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
                 tableNodeHtml = tableNodeHtml +   '<th>' + columns[c].title + '</th>';
             }
 
-            tableNodeHtml = tableNodeHtml +     '<th>Total</th>';
+            tableNodeHtml = tableNodeHtml +     '<th style="width: 60px;">Total</th>';
             tableNodeHtml = tableNodeHtml +   '</tr></thead>';
             tableNodeHtml = tableNodeHtml + '</table>';
             var tableNode = $(tableNodeHtml);
@@ -122,22 +122,6 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
         // first cell - version title with modal popup
         // ---------------------------------------------------------------------------
-        // var versionIssuesModalId = 'modal_' + version.id + '_allissues';
-        // var versionIssuesDataTableId = 'datatable_' + versionIssuesModalId;
-        // var cellContent = '<a href="#' + versionIssuesModalId + 
-        //                 '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
-        //                  version.name + '</a>';
-        // var versionIssuesTitle = 'Issues of ' + project.title + ' / ' + version.name;
-
-        // if ( $('#' + versionIssuesModalId) ) $('#' + versionIssuesModalId).remove();
-        // projectSummaryBodyNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
-
-        // $('#' + versionIssuesDataTableId).dataTable({
-        //                                 'bPaginate': false,
-        //                                 'bDestroy': true
-        //                                 });
-
-        // console.log('  cellContent: ' + cellContent);
         html = html + '<td class="align-right">' + version.name + '</td>';
 
         // second cell - version due date
@@ -168,7 +152,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
                 // CREATION OF THE MODAL
                 if ( $('#' + modalId) ) $('#' + modalId).remove();
-                projectSummaryBodyNode.append(addModal(group.issues, modalId, title, dataTableId));
+                projectSummaryNode.append(addModal(group.issues, modalId, title, dataTableId));
 
                 $('#' + dataTableId).dataTable({
                                                 'bPaginate': false,
@@ -189,22 +173,26 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
                              version.issues.length + '</a>';
 
             if ( $('#' + versionIssuesModalId) ) $('#' + versionIssuesModalId).remove();
-            projectSummaryBodyNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
+            projectSummaryNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
 
             $('#' + versionIssuesDataTableId).dataTable({
                                             'bPaginate': false,
                                             'bDestroy': true
                                             });
 
-            console.log('  cellContent: ' + cellContent);
-            html = html + '<td>' + cellContent + '</td>';
         } else {
-            html = html + '<td>' + version.issues.length + '</td>';
+            cellContent = version.issues.length;
         }
-
-
+        html = html + '<td>' + cellContent + '</td>';
 
         row.append(html).fadeIn();
+
+        // Apply sorting to the summary table
+        $('#' + projectSummaryTableId).dataTable({
+                                        'bPaginate': false,
+                                        'bFilter': false,
+                                        'bDestroy': true
+                                        });
 
     }
 
