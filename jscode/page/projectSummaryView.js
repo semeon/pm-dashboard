@@ -78,7 +78,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
             var tableNodeHtml = '';
             tableNodeHtml = tableNodeHtml + '<table id="' + projectSummaryTableId + 
-                                            '" class="table table-bordered table-condensed table-hover sortable">';
+                                            '" class="table table-bordered table-condensed table-hover">';
             // tableNodeHtml = tableNodeHtml +   '<caption>Number of issues in corresponding versions</caption>';
             tableNodeHtml = tableNodeHtml +   '<thead><tr>';
             tableNodeHtml = tableNodeHtml +     '<th width="120">Version</th>';
@@ -119,19 +119,26 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
         row.fadeOut().empty();
         var html = '';
 
-
+        var colNumber;
+        var sortableCols = [];
+        var nonSortableCols = [];
         // first cell - version title with modal popup
         // ---------------------------------------------------------------------------
         html = html + '<td class="align-right">' + version.name + '</td>';
+        colNumber = 0;
+        sortableCols.push(colNumber);
 
         // second cell - version due date
         // ---------------------------------------------------------------------------
         html = html + '<td>' + version.due_date + '</td>';
+        colNumber++;
+        sortableCols.push(colNumber);
 
         // data columns
         // ---------------------------------------------------------------------------
         var columns = project.customStatuses;
         for (var c = 0; c<columns.length; c++) {
+
             var group = version.issueGroups[columns[c].title];
             var value = group.count;
             console.log('  Value for ' + project.id + ' / ' + version.name + ' / ' + columns[c].title + ': ' + value);
@@ -160,6 +167,9 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
                                                 });        
             }
             html = html + '<td>' + valueHtml + '</td>';
+
+            colNumber++;
+            nonSortableCols.push(colNumber);
         }
 
         // last cell - total issues number
@@ -184,13 +194,20 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
             cellContent = version.issues.length;
         }
         html = html + '<td>' + cellContent + '</td>';
+        colNumber++;
+        nonSortableCols.push(colNumber); 
 
         row.append(html).fadeIn();
+
+        console.log('  Non-sortable: ' + nonSortableCols);
 
         // Apply sorting to the summary table
         $('#' + projectSummaryTableId).dataTable({
                                         'bPaginate': false,
                                         'bFilter': false,
+                                        'aoColumnDefs': [
+                                                        { "bSortable": false, "aTargets": nonSortableCols }
+                                                        ],
                                         'bDestroy': true
                                         });
 
