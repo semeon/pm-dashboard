@@ -228,7 +228,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
         modalCode = modalCode +     '</div>';
         modalCode = modalCode +     '<div class="modal-body">';
 
-        modalCode = modalCode +         '<table id="' + dataTableId + '" class="table table-bordered table-condensed table-hover">';
+        modalCode = modalCode +         '<table id="' + dataTableId + '" class="table table-bordered table-striped table-condensed table-hover">';
         modalCode = modalCode +             '<thead>';
         modalCode = modalCode +                 '<th>#</th>';
         modalCode = modalCode +                 '<th>Status</th>';
