@@ -6,7 +6,7 @@ function Settings() {
 
 	this.userSettings = {
 	    queryURL: 'http://dintrsrv01.domain.corp/issues',
-	    userKey: '2da4605ebea54748909b946d3c9d2bd5c04c4837',
+	    userKey: '',
 	    projects: [
 
 	    // ПРИМЕР НАСТРОЙКИ ПРОЕКТА

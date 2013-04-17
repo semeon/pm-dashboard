@@ -25,7 +25,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
         // Header --------------------------------------
         function createProjectTableHeader() {
-            var headerHtml = '<h4 id="header_' + project.id + '" class="pull-left">' + project.title + '</h4>';
+            var headerHtml = '<h3 id="header_' + project.id + '" class="pull-left">' + project.title + '</h3>';
             projectSummaryNode.append(headerHtml);
         }
 
