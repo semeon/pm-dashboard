@@ -208,6 +208,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
                                         'aoColumnDefs': [
                                                         { "bSortable": false, "aTargets": nonSortableCols }
                                                         ],
+                                        'aaSorting': [[1,'asc']],
                                         'bDestroy': true
                                         });
 
