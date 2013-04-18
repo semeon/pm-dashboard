@@ -217,8 +217,6 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
         // ---------------------------------------------------------------------------
             row.append(html).fadeIn();
 
-            console.log('  Non-sortable: ' + nonSortableCols);
-
             // Apply sorting to the summary table
             $('#' + projectSummaryTableId).dataTable({
                                             'bPaginate': false,

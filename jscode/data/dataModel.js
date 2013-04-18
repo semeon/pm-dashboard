@@ -92,78 +92,77 @@ function DataModel (userSettings, eventHandler) {
         console.log('New version creation requested for ' + project.id + ': ' + versionJson.id);
 
         var version = project.versions[versionJson.id];
-        if(version == undefined) {
-            console.log('- Creating..');
+        if(version != undefined) {
+            console.log('- Version already exists. Deleting..');
+            version = {};
+        }
 
-            version = versionJson;
-            project.versions[String(version.id)] = version;
-            version.sourceIssues = [];
-            version.issues = [];
-            version.issuesMap = {};
-            version.issueGroups = {};
-            version.issueTrackers = {};
-            version.issueStatuses = {};
+        console.log('- Creating..');
 
-            // Predefine custom statuses
-            // ----------------------------------------------------------
+        version = versionJson;
+        project.versions[String(version.id)] = version;
+        version.sourceIssues = [];
+        version.issues = [];
+        version.issuesMap = {};
+        version.issueGroups = {};
+        version.issueTrackers = {};
+        version.issueStatuses = {};
+
+        // Predefine custom statuses
+        // ----------------------------------------------------------
+		for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+			var groupName = project.customStatuses[cs].title;
+			version.issueGroups[groupName] = {};
+			version.issueGroups[groupName].title = groupName;
+			version.issueGroups[groupName].count = 0;
+			version.issueGroups[groupName].issues = [];
+		}            
+
+		// Predefine tracker groups
+		// ----------------------------------------------------------
+		for (var it=0; it<project.issueTrackers.length; it++ ) {
+			
+			var trackerId = String(project.issueTrackers[it]);
+			version.issueTrackers[trackerId] = {};
+			version.issueTrackers[trackerId].count = 0;
+			version.issueTrackers[trackerId].issues = [];
+		}            
+
+		// Predefine status groups
+		// ----------------------------------------------------------
+		console.log('-- Creating custom status groups.. Count: ' + project.customStatuses.length);
+		for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+			var customStatus = project.customStatuses[cs];
+
+			console.log('-- Creating custom status group ' + cs + ' of ' + project.customStatuses.length +  ': ' + customStatus.title);
+
+			for (var is=0; is<customStatus.includes.length; is++) {
+				var statusId = String(customStatus.includes[is]);
+
+				console.log('--- Adding a status, step ' + is + ' of ' + customStatus.includes.length + ', ID: ' + statusId);
+
+				version.issueStatuses[statusId] = {};
+				version.issueStatuses[statusId].count = 0;
+				version.issueStatuses[statusId].issues = [];
+			}
+		}            
+
+		// Public Methods
+		// ----------------------------------------------------------
+		version.getIssueCountByStatusGroup = function(statusName) {
+			var includedStatuses = project.customStatuses[statusName].includes;
+
 			for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-				var groupName = project.customStatuses[cs].title;
-				version.issueGroups[groupName] = {};
-				version.issueGroups[groupName].title = groupName;
-				version.issueGroups[groupName].count = 0;
-				version.issueGroups[groupName].issues = [];
-			}            
 
-			// Predefine tracker groups
-			// ----------------------------------------------------------
-			for (var it=0; it<project.issueTrackers.length; it++ ) {
-				
-				var trackerId = String(project.issueTrackers[it]);
-				version.issueTrackers[trackerId] = {};
-				version.issueTrackers[trackerId].count = 0;
-				version.issueTrackers[trackerId].issues = [];
-			}            
+				var cs = project.customStatuses[cs];
+				var customStatusCount = 0;
 
-			// Predefine status groups
-			// ----------------------------------------------------------
-			console.log('-- Creating custom status groups.. Count: ' + project.customStatuses.length);
-			for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-				var customStatus = project.customStatuses[cs];
-
-				console.log('-- Creating custom status group ' + cs + ' of ' + project.customStatuses.length +  ': ' + customStatus.title);
-
-				for (var is=0; is<customStatus.includes.length; is++) {
-					var statusId = String(customStatus.includes[is]);
-
-					console.log('--- Adding a status, step ' + is + ' of ' + customStatus.includes.length + ', ID: ' + statusId);
-
-					version.issueStatuses[statusId] = {};
-					version.issueStatuses[statusId].count = 0;
-					version.issueStatuses[statusId].issues = [];
+				for (is in cs.includes) {
+					var statusId = String(cs[is]);
+					customStatusCount = customStatusCount + version.issueStatuses[statusId].count;
 				}
 			}            
-
-			// Public Methods
-			// ----------------------------------------------------------
-			version.getIssueCountByStatusGroup = function(statusName) {
-				var includedStatuses = project.customStatuses[statusName].includes;
-
-				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-
-					var cs = project.customStatuses[cs];
-					var customStatusCount = 0;
-
-					for (is in cs.includes) {
-						var statusId = String(cs[is]);
-						customStatusCount = customStatusCount + version.issueStatuses[statusId].count;
-					}
-				}            
-			}
-
-
-        } else {
-            console.log('- Warning! Version already exists.');
-        }
+		}
 
         return version;
     }
