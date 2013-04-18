@@ -3,12 +3,11 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	var self = this;
 
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings);
-	this.data = {};
-	self.data.projects = {};
+	this.data = new DataModel(userSettings, eventHandler);
 
-	this.prevRequestCounter = 0;
-	this.pendingRequestCounter = 0;
-	this.totalRequestCounter = 0;
+	// this.prevRequestCounter = 0;
+	// this.pendingRequestCounter = 0;
+	// this.totalRequestCounter = 0;
 
 
 // ========================================================================================================
@@ -33,54 +32,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 	// --------------------------------------------------------------------------------------------------------
 	this.createDataStructureFromAllIssues = function(project, version) {
-
-		// Structure:
-		// 	Project
-		// 	 - Version
-		//		- Custom Status
-
-		console.log('Creating data structure for ' + project.id + ' / ' + version.name);
-
-		var supportedStatuses = [];
-		for (var cs=0; cs<project.customStatuses.length; cs++) {
-			supportedStatuses = supportedStatuses.concat(project.customStatuses[cs].includes);
-		}
-		// console.log('Supported statuses: ' + supportedStatuses);
-
-		var issues = version.allIssues;
-		for (var i=0; i<issues.length; i++) {
-			var issue = issues[i];
-			console.log('------------------------------------------------------');
-			console.log('Processing issue[' + i + '] #' + issue.id);
-
-			var issueStatus = issue.status.id;
-			var issueTracker = issue.tracker.id;
-
-			console.log('- Checking tracker and status..');
-			if ( $.inArray(issueTracker, project.issueTrackers) > -1 
-					&&
-				 $.inArray(issueStatus, supportedStatuses) > -1 ) {
-
-				console.log('-- Good. Status: ' + issueStatus + ', tracker:  '+ issueTracker + '. Proceeding..');
-
-				var issueGroupname = '';
-				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-					var groupName = project.customStatuses[cs].title;
-					if ( $.inArray(issueStatus, project.customStatuses[cs].includes) > -1 ) {
-						issueGroupname = groupName;
-						continue;
-					}
-				}
-
-				var group = version.issueGroups[issueGroupname];
-				group.count++;
-				group.issues.push(issue);
-				version.issues.push(issue);
-
-			} else {
-				// console.log(' - Doesn\'t fit. Next..');
-			}
-		}
+		self.data.calculateStatistics(project, version);
 	}
 
 
@@ -98,20 +50,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		console.log('Cheking, if the project already exist');
 		if(dataProject == undefined) {
 			console.log(' - It doesn\'t, creating a new one.');
-
-			// Creating a new version
-			// ------------------------------
-			dataProject = {};
-			self.data.projects[userProject.id] = dataProject;
-
-			dataProject.id = userProject.id;
-			dataProject.title = userProject.title;
-			dataProject.versions = {};
-			dataProject.allIssues = [];
-			dataProject.customStatuses = userProject.customStatuses;
-			dataProject.issueTrackers = userProject.issueTrackers;
-			dataProject.customQueries = userProject.customQueries;
-			// ------------------------------
+			dataProject = self.data.createProject(userProject);
 
 		} else {
 			console.log(' - It does, proceeding with it.');
@@ -135,7 +74,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 		requestVersions(project, requestUrl);  
 
-	    // Request
+	    // Request --------------------------------------------------------------
 		function requestVersions (project, requestUrl) {
 
 			var requestParameters = { status: 'open'};
@@ -147,7 +86,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 							});
 		}
 
-		// Response processing
+		// Response processing -------------------------------------------------
 	    function processVersions(data, project, loadIssues) {
 			console.log('Starting procesing versions for ' + project.id);
 
@@ -161,24 +100,12 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 			for (var v=0; v<data.versions.length; v++) {
 
-				// Creating a new version
-				// ------------------------------
-				var version = data.versions[v];
-				if (version.status != 'closed') {
-					project.versions[String(version.id)] = version;
-					version.issueGroups = {};
-					version.allIssues = [];
-					version.issues = [];
+				if (data.versions[v].status != 'closed') {
+					// Creating a new version
+					// ------------------------------
+					var version = self.data.createVersion(project, data.versions[v]);
 
-					for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-						var groupName = project.customStatuses[cs].title;
-						version.issueGroups[groupName] = {};
-						version.issueGroups[groupName].title = groupName;
-						version.issueGroups[groupName].count = 0;
-						version.issueGroups[groupName].issues = [];
-					}
-
-					console.log('Calling load issues by groups');
+					console.log('Calling load issues by version for ' + project.id + ' / ' + version.name);
 					batchLoadVersionIssuesData(project, version);
 				}
 				// ------------------------------
@@ -186,6 +113,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			
 	    }
 	}//----------------------------------------------------------------------------------------------------
+
 
 // --------------------------------------------------------------------------------------------------------
 // BATCH ISSUE LOAD by VERSION
@@ -203,7 +131,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		eventHandler.versionBatchLoadStarted(project, version);
 	    requestIssuesPage(project, version, requestUrl, 0);
 
-	    // Request
+	    // Request --------------------------------------------------------------
 		function requestIssuesPage (project, version, requestUrl, offset) {
 
 			var requestParameters = { offset: offset, 
@@ -214,44 +142,32 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			console.log('Requesting issues page ' + offset + ' for ' + project.id + ' / ' + version.name);
 			console.log(' - URL:  ' + requestUrl);
 
-
-			if (version.href == undefined ) {
-				var href = 	redmineSettings.redmineUrl + 
-	                      	redmineSettings.projectDataUrl + 
-	                      	project.id + '/' +
-	                      	redmineSettings.issuesRequestUrl + '?';
-				href = href + '&fixed_version_id=' + version.id;
-				href = href + '&group_by=status';
-				version.href = href;
-			}
-
 			genericRequest( requestUrl, 
 							requestParameters, 
 							function (data) {
 								processIssuesPage(data, requestParameters, project, version, requestUrl);
 							});
-		}
+		} // --------------------------------------------------------------------
 
-	    // Response preocessing
+		// Response processing --------------------------------------------------
 		function processIssuesPage (data, rp, project, version, requestUrl) {
 			console.log('Processing issues page ' + rp.offset + ' for ' + project.id + ' / ' + version.name);
-			console.log(data);
 
 			if (data.issues) {
 
-				var prevPagesIssueCount = version.allIssues.length;
+				var prevPagesIssueCount = version.sourceIssues.length;
 				var currentPageIssueCount = data.issues.length;
 
 				if( (prevPagesIssueCount+currentPageIssueCount) > data.total_count) {
 					var diff = data.total_count - prevPagesIssueCount;
 					var notLoadedIssues = data.issues.slice(currentPageIssueCount-diff);
-					version.allIssues = version.allIssues.concat(notLoadedIssues);
+					version.sourceIssues = version.sourceIssues.concat(notLoadedIssues);
 
 				} else {
-					version.allIssues = version.allIssues.concat(data.issues);
+					version.sourceIssues = version.sourceIssues.concat(data.issues);
 				}
 
-				var loadedIssuesCount = version.allIssues.length;
+				var loadedIssuesCount = version.sourceIssues.length;
 				eventHandler.versionBatchLoadUpdated(project, version, loadedIssuesCount, data.total_count);
 
 				if (loadedIssuesCount < data.total_count) {
@@ -270,9 +186,8 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 				console.log(data.error);
 				eventHandler.genericErrorOccured('AJAX Data load');
 			}
-		}
+		} // --------------------------------------------------------------------
 	}
-
 
 
 // --------------------------------------------------------------------------------------------------------
