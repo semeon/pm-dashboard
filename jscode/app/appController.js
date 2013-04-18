@@ -126,15 +126,6 @@ function AppController(userSettings, appSettings, redmineSettings){
 // -------------------------------------------------------------------------------------------
 
 
-	this.refreshQueries = function(projectId) {
-		for(var p=0; p<userSettings.projects.length; p++) {
-			if (userSettings.projects[p].id == projectId) {
-				updateProjectSummaryBlank(userSettings.projects[p]);
-				break;
-			}
-		}
-	}
-
 
 // -------------------------------------------------------------------------------------------
 // PRIVATE

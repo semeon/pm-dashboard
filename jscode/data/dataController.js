@@ -116,7 +116,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 
 
 // --------------------------------------------------------------------------------------------------------
-// BATCH ISSUE LOAD by VERSION
+// VERSION DATA LOAD
 // --------------------------------------------------------------------------------------------------------
 
 	function batchLoadVersionIssuesData(project, version) {
