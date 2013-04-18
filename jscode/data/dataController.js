@@ -3,7 +3,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 	var self = this;
 
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings);
-	this.data = new DataModel(userSettings, eventHandler);
+	this.data = new DataModel(userSettings);
 
 	// this.prevRequestCounter = 0;
 	// this.pendingRequestCounter = 0;

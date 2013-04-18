@@ -1,4 +1,4 @@
-function DataModel (userSettings, eventHandler) {
+function DataModel (userSettings) {
 
     var self = this;
 
