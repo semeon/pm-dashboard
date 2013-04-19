@@ -39,3 +39,7 @@ td.align-right {
 td.align-left {
     text-align: left!important;
 }
+
+th, td {
+    background-color: white;
+}

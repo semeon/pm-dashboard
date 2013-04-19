@@ -10,8 +10,10 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
     var hiddenNodeForModals;
     var versionSummaryNodes = {};
 
-    var versionTableIdPrefix = 'ver_summary_table_';
-    var versionBodyIdPrefix = 'ver_summary_table_body_';
+	var versionControlsIdPrefix = 'ver_summary_controls_';
+	var versionTableIdPrefix = 'ver_summary_table_';
+	var versionBodyIdPrefix = 'ver_summary_table_body_';
+	var versionFooterIdPrefix = 'ver_summary_table_footer_';
 
 
     var versionRows = {};
@@ -19,7 +21,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
     this.create = function () {
 		console.log('Creating project summary ' + project.id);
 
-		projectSummaryNode = $('<div id="proj_summary_' + project.id + '" class="border-bottom hide"></div>');
+		projectSummaryNode = $('<div id="proj_summary_' + project.id + '" class="hide well well-small"></div>');
 		rootNode.append(projectSummaryNode);
 		projectSummaryNode.append(createProjectHeader());
 		projectSummaryNode.fadeIn();
@@ -42,66 +44,64 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		console.log('- Creating version summary blank' + version.name);
 
-		var versionSummaryNode = $('<div id="ver_summary_' + version.id + '" class="hide"></div>');
+		var versionSummaryNode = $('<div id="ver_summary_' + version.id + '" class="hide clearfix"></div>');
 		versionSummaryNodes[version.id] = versionSummaryNode;
 		projectSummaryNode.append(versionSummaryNode);
 
 		versionSummaryNode.append( createVersionHeader(version) );
 		versionSummaryNode.append( createVersionControls(version) );
+
 		versionSummaryNode.append( createVersionTable(version) );
+
 
 		versionSummaryNode.fadeIn();
 
 		// Version Header --------------------------------------
 		function createVersionHeader(version) {
-		    var headerNode = '<h5 id="ver_header_' + 
+		    var headerNode = $('<h5 id="ver_header_' + 
 		                        version.id + '" class="pull-left">Version: ' + 
 		                        version.name + ' / Due to: ' + 
-		                        version.due_date + '</h5>';
+		                        version.due_date + '</h5>');
 		    return headerNode;
 		}
 
 		// Version Controls ------------------------------------
 		function createVersionControls(version) {
 
-		    var btnToolBar = $('<div class="btn-toolbar  pull-right"></div>');
+		    var btnToolBar = $('<div id="' + versionControlsIdPrefix + version.id + '" class="btn-toolbar  pull-right"></div>');
 
 		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
 		    btnToolBar.append(otherBtnGroupNode);
 
-		    var refreshBtnNode = $('<button class="btn btn-small" type="button"><i class="icon-refresh"></i></button>');
-		    otherBtnGroupNode.append(refreshBtnNode);
+			var hideButton = $('<button class="btn btn-mini" type="button">Hide</button>');
+			otherBtnGroupNode.append(hideButton);
+			hideButton.bind(  'click', 
+									function() {
+										$('#' + versionTableIdPrefix + version.id).toggle();
+										hideButton.toggleClass('active');										
+									}
+								);
 
 
-		    refreshBtnNode.bind(  'click', 
-		                          function() {
-		                            eventHandler.onVersionSummaryRefreshBtnClick(project, version);
-		                          }
-		                       );
+			var detailsButton = $('<button class="btn btn-mini" type="button">Details</button>');
+			otherBtnGroupNode.append(detailsButton);
+			detailsButton.bind(  'click', 
+									function() {
+										$('#' + versionBodyIdPrefix + version.id).toggle();
+										detailsButton.toggleClass('active');										
+									}
+								);
+
+			var refreshBtnNode = $('<button class="btn btn-mini" type="button">Refresh</button>');
+			otherBtnGroupNode.append(refreshBtnNode);
+			refreshBtnNode.bind(  'click', 
+									function() {
+									eventHandler.onVersionSummaryRefreshBtnClick(project, version);
+									}
+								);
+
 
 		    return btnToolBar;
-
-		    // if(prj.customQueries) {
-		        // var customQueryBtnGroupNode = $('<div class="btn-group"></div>');
-		        // btnToolBar.append(customQueryBtnGroupNode);
-
-		    //     var ddBtnNode = $('<button class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">Custom Queries <span class="caret"></span></button>');
-		    //     customQueryBtnGroupNode.append(ddBtnNode);
-
-		    //     var customQueriesNode = $('<ul class="dropdown-menu"></ul>');
-		    //     customQueryBtnGroupNode.append(customQueriesNode);
-
-		    //     for (var cq=0; cq<prj.customQueries.length; cq++) {
-		    //         var query = prj.customQueries[cq];
-		    //         var href =  rs.redmineUrl + 
-		    //                     rs.projectDataUrl + 
-		    //                     project.id + '/' +
-		    //                     rs.issuesRequestUrl + '?query_id=' + query.id;
-		    //         var ddItemNode = '<li><a href="' + href + '" target="_blank">' + query.title + '</a></li>';
-		    //         customQueriesNode.append(ddItemNode);
-		    //     }
-
-		    // }
 		}
 
 		// Standard version table --------------------------
@@ -110,7 +110,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		    var tableNodeHtml = '';
 		    tableNodeHtml = tableNodeHtml + '<table id="' + versionTableIdPrefix + version.id + 
 		                                    '" class="table table-bordered table-condensed table-hover">';
-		    tableNodeHtml = tableNodeHtml +   '<thead><tr>';
+		    tableNodeHtml = tableNodeHtml +   '<thead><tr class="info">';
 		    tableNodeHtml = tableNodeHtml +     '<th width="100" style="text-align: left!important;">Tracker</th>';
 
 		    // Columns
@@ -125,10 +125,15 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		    var tableNode = $(tableNodeHtml);
 		    
-		    var bodyId = versionBodyIdPrefix + version.id;
-		    projectSummaryBodyNode = $('<tbody id="' + bodyId + '" class="hidden"></tbody>');
-		    tableNode.append(projectSummaryBodyNode);
+			var bodyId = versionBodyIdPrefix + version.id;
+			projectSummaryBodyNode = $('<tbody id="' + bodyId + '" class="hide"></tbody>');
+			tableNode.append(projectSummaryBodyNode);
 
+			var footerId = versionFooterIdPrefix + version.id;
+			projectSummaryFooterNode = $('<tfoot id="' + footerId + '" class="hidden"></tfoot>');
+			tableNode.append(projectSummaryFooterNode);
+
+ 
 		    return tableNode;
 		}
 
@@ -194,14 +199,16 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		//  Create footer row
 		// ------------------------------------------------------------------------------------
+			var footerNode = $('#' + versionFooterIdPrefix + version.id);
+			footerNode.empty();
 
-			var sumRowNode = $('<tr class="hide"></tr>');
-			bodyNode.append(sumRowNode);
+			var sumRowNode = $('<tr class="hide info"></tr>');
+			footerNode.append(sumRowNode);
 
 			// Create "Summary" column
 			// ---------------------------------------------------------------------------
 				console.log('-- Creating cell for version summary caption');
-				var node = $('<th style="text-align: left!important;">All Trackers</th>');
+				var node = $('<td style="text-align: left!important;">All Trackers</td>');
 				sumRowNode.append(node)
 
 
@@ -226,7 +233,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 				var issues = version.issues;
 
 				console.log('-- Creating cell for custom status: ' + groupName);
-				sumRowNode.append( createDataCell(issues, rowCounter, columnCounter, trackerName + ' / ' + groupName) );
+				sumRowNode.append( createDataCell(issues, rowCounter, columnCounter, 'All') );
 
 
 
