@@ -13,21 +13,24 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 // Summaries
 // 
 
-	this.createSummary = function(project, version) {
-		console.log('Update progress bar for ' + project.id + ' / ' + version.name);
-
-		var id = project.id;
-		var summary = self.projectSummaries[id];
+	this.createProjectSummary = function(project) {
+		console.log('Creating summary for ' + project.id);
+		var summary = self.projectSummaries[project.id];
 
 		if (summary == undefined) {
 			console.log('Creating summary table for ' + project.id);
-
 			summary = new ProjectSummaryView(project, eventHandler, redmineSettings);
-			self.projectSummaries[id] = summary;
+			self.projectSummaries[project.id] = summary;
 
 			summary.create();
 		}
 
+	}
+
+	this.addVersionSummary = function(project, version) {
+		console.log('Creating summary for ' + project.id + ' / ' + version.name);
+		var summary = self.projectSummaries[project.id];
+		summary.addVersion(version);
 	}
 
 	this.updateSummary = function(project, version) {
@@ -119,38 +122,6 @@ function AppView(eventHandler, userSettings, appSettings, redmineSettings){
 
 	this.removePermanotice = function(title, text, type) {
 		if (permanotice && permanotice.pnotify_remove) permanotice.pnotify_remove();
-	}
-
-
-// --------------------------------------------------------
-// OLD CUSTOM SUMMARY - to reuse for custom stats
-//
-	// Project Summary
-	this.createProjectSummary = function(projectId, projectTitle, queryTitles) {
-		createProjectControlsNode(projectId);
-		createProjectTableHeader(projectId, projectTitle);
-		createProjectTableNode(projectId, queryTitles);
-	}
-
-	this.createProjectTableRowNode = function(projectId, version) {
-		var root = $('#summary_' + projectId);
-		var trNode = $('<tr id="queryRow_' + projectId + '_' + version + '"><th>' + version + '</th></tr>');
-		root.append(trNode);
-		return trNode;
-	}
-
-	this.appendQueryResultNode = function(root, projectId, version, queryId) {
-		var tdNode = $('<td id="queryResult_' + queryId +'"></td>');
-		root.append(tdNode);
-	}
-
-	this.showQueryResult = function(queryId, queryResult, url) {
-		$('#queryResult_' + queryId).empty();
-
-		var node = $('<a href="' + url + '" target="_blank" class="hide">' + queryResult + '</a>');
-
-		$('#queryResult_' + queryId).append(node);
-		node.fadeIn(600);
 	}
 
 

@@ -5,17 +5,11 @@ function DataModel (userSettings) {
     this.projects = {};
 
 
-    this.getIssueGroup = function (version, groupName) {
-
-    }
-
-
 	// Calculate data statistics
 	// ---------------------------------------------------------------------------
     this.calculateStatistics = function (project, version) {
 
-		console.log('Gatehring statistics for ' + project.id + ' / ' + version.name);
-
+		console.log('Gathering statistics for ' + project.id + ' / ' + version.name);
 		var issues = version.sourceIssues;
 
 		for (var i=0; i<issues.length; i++) {
@@ -82,90 +76,141 @@ function DataModel (userSettings) {
 				}
 			}
 		}
-
     }
 
 
 	// Create a new version
 	// ---------------------------------------------------------------------------
     this.createVersion = function (project, versionJson) {
-        console.log('New version creation requested for ' + project.id + ': ' + versionJson.id);
+		console.log('New version creation requested for ' + project.id + ': ' + versionJson.id);
 
-        var version = project.versions[versionJson.id];
-        if(version != undefined) {
-            console.log('- Version already exists. Deleting..');
-            version = {};
-        }
+		var version = project.versions[versionJson.id];
+		if(version != undefined) {
+			console.log('- Version already exists. Deleting..');
+			version = {};
+		}
 
-        console.log('- Creating..');
+		console.log('- Creating..');
 
-        version = versionJson;
-        project.versions[String(version.id)] = version;
-        version.sourceIssues = [];
-        version.issues = [];
-        version.issuesMap = {};
-        version.issueGroups = {};
-        version.issueTrackers = {};
-        version.issueStatuses = {};
+		version = versionJson;
+		project.versions[String(version.id)] = version;
 
-        // Predefine custom statuses
-        // ----------------------------------------------------------
-		for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-			var groupName = project.customStatuses[cs].title;
-			version.issueGroups[groupName] = {};
-			version.issueGroups[groupName].title = groupName;
-			version.issueGroups[groupName].count = 0;
-			version.issueGroups[groupName].issues = [];
-		}            
-
-		// Predefine tracker groups
-		// ----------------------------------------------------------
-		for (var it=0; it<project.issueTrackers.length; it++ ) {
-			
-			var trackerId = String(project.issueTrackers[it]);
-			version.issueTrackers[trackerId] = {};
-			version.issueTrackers[trackerId].count = 0;
-			version.issueTrackers[trackerId].issues = [];
-		}            
-
-		// Predefine status groups
-		// ----------------------------------------------------------
-		console.log('-- Creating custom status groups.. Count: ' + project.customStatuses.length);
-		for (var cs=0; cs<project.customStatuses.length; cs++ ) {
-			var customStatus = project.customStatuses[cs];
-
-			console.log('-- Creating custom status group ' + cs + ' of ' + project.customStatuses.length +  ': ' + customStatus.title);
-
-			for (var is=0; is<customStatus.includes.length; is++) {
-				var statusId = String(customStatus.includes[is]);
-
-				console.log('--- Adding a status, step ' + is + ' of ' + customStatus.includes.length + ', ID: ' + statusId);
-
-				version.issueStatuses[statusId] = {};
-				version.issueStatuses[statusId].count = 0;
-				version.issueStatuses[statusId].issues = [];
-			}
-		}            
 
 		// Public Methods
 		// ----------------------------------------------------------
-		version.getIssueCountByStatusGroup = function(statusName) {
-			var includedStatuses = project.customStatuses[statusName].includes;
 
-			for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+			version.getCustomStatusCount = function (statusName) {
+				console.log('getCustomStatusCount requested for ' + project.id + ' / ' + this.name  + ' / ' +  statusName);
+				var result = this.issueGroups[statusName].count;
+				console.log('- Result: ' + result);
+				return result;
+			}
+			version.getCustomStatusIssues = function (statusName) {
+				console.log('getCustomStatusIssues requested for ' + project.id + ' / ' + this.name  + ' / ' +  statusName);
+				var result = this.issueGroups[statusName].issues;
+				return result;
+			}
 
-				var cs = project.customStatuses[cs];
-				var customStatusCount = 0;
 
-				for (is in cs.includes) {
-					var statusId = String(cs[is]);
-					customStatusCount = customStatusCount + version.issueStatuses[statusId].count;
+			version.getTrackerCount = function (trackerId) {
+				console.log('getTrackerCount requested for ' + project.id + ' / ' + this.name  + ' / ' +  trackerId);
+				var result = this.issueTrackers[trackerId].count;
+				console.log('- Result: ' + result);
+				return result;
+			}
+			version.getTrackerIssues = function (trackerId) {
+				console.log('getTrackerCount requested for ' + project.id + ' / ' + this.name  + ' / ' +  trackerId);
+				var result = this.issueTrackers[trackerId].issues;
+				return result;
+			}
+
+
+			version.getStatusCount = function (statusId) {
+				console.log('getStatusCount requested for ' + project.id + ' / ' + this.name  + ' / ' +  statusId);
+				var result = this.issueStatuses[statusId].count;
+				console.log('- Result: ' + result);
+				return result;
+			}
+			version.getStatusIssues = function (statusId) {
+				console.log('getStatusIssues requested for ' + project.id + ' / ' + this.name  + ' / ' +  statusId);
+				var result = this.issueStatuses[statusId].issues;
+				return result;
+			}
+
+
+			version.getCountByCustomStatusAndTracker = function(statusName, trackerId) {
+				var result = 0;
+				var issuesSet = this.issueGroups[statusName].issues;
+
+				for (var i=0; i<issuesSet.length; i++) {
+					if( issuesSet[i].tracker.id == trackerId ) result++;
 				}
-			}            
-		}
+				return result;
+			}
+			version.getIssuesByCustomStatusAndTracker = function(statusName, trackerId) {
+				var result = [];
+				var issuesSet = this.issueGroups[statusName].issues;
+
+				for (var i=0; i<issuesSet.length; i++) {
+					if( issuesSet[i].tracker.id == trackerId ) result.push(issuesSet[i]);
+				}
+				return result;
+			}
+
+			// Reset
+			// ---------------------------------------------------------------------------
+			version.reset = function () {
+				console.log('- Reseting ' + project.id + ' / ' + this.id);
+
+				version.sourceIssues = [];
+				version.issues = [];
+				version.issuesMap = {};
+				version.issueGroups = {};
+				version.issueTrackers = {};
+				version.issueStatuses = {};
+
+				// Predefine custom statuses
+				// ----------------------------------------------------------
+				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+					var groupName = project.customStatuses[cs].title;
+					version.issueGroups[groupName] = {};
+					version.issueGroups[groupName].title = groupName;
+					version.issueGroups[groupName].count = 0;
+					version.issueGroups[groupName].issues = [];
+				}            
+
+				// Predefine tracker groups
+				// ----------------------------------------------------------
+				for (var it=0; it<project.issueTrackers.length; it++ ) {
+					
+					var trackerId = String(project.issueTrackers[it]);
+					version.issueTrackers[trackerId] = {};
+					version.issueTrackers[trackerId].count = 0;
+					version.issueTrackers[trackerId].issues = [];
+				}            
+
+				// Predefine standard statuses
+				// ----------------------------------------------------------
+				console.log('-- Creating custom status groups.. Count: ' + project.customStatuses.length);
+				for (var cs=0; cs<project.customStatuses.length; cs++ ) {
+					var customStatus = project.customStatuses[cs];
+					console.log('-- Creating custom status group ' + cs + ' of ' + project.customStatuses.length +  ': ' + customStatus.title);
+					for (var is=0; is<customStatus.includes.length; is++) {
+						var statusId = String(customStatus.includes[is]);
+						console.log('--- Adding a status, step ' + is + ' of ' + customStatus.includes.length + ', ID: ' + statusId);
+						version.issueStatuses[statusId] = {};
+						version.issueStatuses[statusId].count = 0;
+						version.issueStatuses[statusId].issues = [];
+					}
+				}            
+
+			}
+
+		version.reset();
 
         return version;
     }
+
 
 
 	// Create a new project

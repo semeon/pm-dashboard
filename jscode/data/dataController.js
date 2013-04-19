@@ -19,15 +19,16 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		console.log('Starting startInitialDataLoad: structured requests');
 		for(var p=0; p<userSettings.projects.length; p++) {
 			console.log('Calling loadProjectData for ' + userSettings.projects[p].id);
-			loadProjectData(userSettings.projects[p].id, false);
+			loadProjectData(userSettings.projects[p].id);
 		}
 
 	}
 
 	// --------------------------------------------------------------------------------------------------------
-	this.reloadProductData = function(project) {
-		console.log('Calling reload project versions for ' + project.id);
-		loadVersions(project);
+	this.reloadVersionData = function(project, version) {
+		console.log('Calling reload data for ' + project.id + ' / ' + version.name);
+		version.reset();
+		loadVersionIssuesData(project, version);
 	}
 
 	// --------------------------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 //-----------------------------------------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------------------------------------
-	function loadProjectData(projectId, batch) {
+	function loadProjectData(projectId) {
 		console.log('Starting getVersionList for ' + projectId);
 
 		var userProject = userSettings.getProjectSettingsById(projectId);
@@ -55,8 +56,8 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 		} else {
 			console.log(' - It does, proceeding with it.');
 		}
-		console.log('Calling batch issue load for ' + dataProject.id);
-		loadVersions(dataProject, batch);
+		console.log('Calling issue load for ' + dataProject.id);
+		loadVersions(dataProject);
 	}//----------------------------------------------------------------------------------------------------
 
 
@@ -82,34 +83,47 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 			genericRequest( requestUrl, 
 							requestParameters, 
 							function (data) {
-								processVersions(data, project, loadIssues);
+								processVersions(data, project);
 							});
 		}
 
 		// Response processing -------------------------------------------------
-	    function processVersions(data, project, loadIssues) {
+	    function processVersions(data, project) {
 			console.log('Starting procesing versions for ' + project.id);
 
-			if (data.total_count > redmineSettings.responseLimit) {
-				// TODO - Use pagination here
-				alert('Warning! Redmine response limit is exceeded.' +
-				      '\nRequested items count: ' + data.total_count + '.' +
-				      '\nLimit: ' + redmineSettings.responseLimit + '.'
-				      );
-			}
+			if (data.versions) {
 
-			for (var v=0; v<data.versions.length; v++) {
-
-				if (data.versions[v].status != 'closed') {
-					// Creating a new version
-					// ------------------------------
-					var version = self.data.createVersion(project, data.versions[v]);
-
-					console.log('Calling load issues by version for ' + project.id + ' / ' + version.name);
-					batchLoadVersionIssuesData(project, version);
+				if (data.total_count > redmineSettings.responseLimit) {
+					// TODO - Use pagination here
+					alert('Warning! Redmine response limit is exceeded.' +
+					      '\nRequested items count: ' + data.total_count + '.' +
+					      '\nLimit: ' + redmineSettings.responseLimit + '.'
+					      );
 				}
-				// ------------------------------
+				eventHandler.projectLoadCompleted(project);
+
+				for (var v=0; v<data.versions.length; v++) {
+					if (data.versions[v].status != 'closed') {
+						// Creating a new version
+						// ------------------------------
+						var version = self.data.createVersion(project, data.versions[v]);
+						eventHandler.versionCreated(project, version);
+
+						console.log('Calling load issues by version for ' + project.id + ' / ' + version.name);
+						loadVersionIssuesData(project, version);
+					}
+					// ------------------------------
+				}
+
+			} else if (data.error) { 
+				console.log(data.error);
+				eventHandler.dataLoadErrorOccured(data.error);
+
+			} else {
+				console.log(data.error);
+				eventHandler.genericErrorOccured('AJAX Data load');
 			}
+
 			
 	    }
 	}//----------------------------------------------------------------------------------------------------
@@ -119,7 +133,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 // VERSION DATA LOAD
 // --------------------------------------------------------------------------------------------------------
 
-	function batchLoadVersionIssuesData(project, version) {
+	function loadVersionIssuesData(project, version) {
 		console.log('Starting batch load for ' + project.id + ' / ' + version.name);
 
 	    var requestUrl =  redmineSettings.redmineUrl + 

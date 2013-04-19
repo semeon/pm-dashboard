@@ -121,7 +121,7 @@ function Settings() {
 		projectDataUrl:     'projects/',
 		versionsRequestUrl:  'versions',
 
-		issueStatuses: [
+		issueStatuses: [ // DEPRECATED - DO NOT USE
 			{id: 1,  name: "New"},
 			{id: 2,  name: "In Progress"},
 			{id: 3,  name: "Resolved"},
@@ -142,8 +142,30 @@ function Settings() {
 			{id: 18, name: "Not Reproduced"},
 			{id: 19, name: "Reopened"}
 		],
+		issueStatusesMap: {
+			'1':  {id: 1,  name: "New"},
+			'2':  {id: 2,  name: "In Progress"},
+			'3':  {id: 3,  name: "Resolved"},
+			'4':  {id: 4,  name: "Need More Info"},
+			'5':  {id: 5,  name: "Closed"},
+			'6':  {id: 6,  name: "Rejected"},
+			'7':  {id: 7,  name: "Final"},
+			'8':  {id: 8,  name: "In Development"},
+			'9':  {id: 9,  name: "Delivered"},
+			'10': {id: 10, name: "Accepted"},
+			'11': {id: 11, name: "Final - Signed"},
+			'12': {id: 12, name: "Uploaded"},
+			'13': {id: 13, name: "Definition in Process"},
+			'14': {id: 14, name: "On Hold"},
+			'15': {id: 15, name: "Cancelled"},
+			'16': {id: 16, name: "Final - Estimated"},
+			'17': {id: 17, name: "Pending Acceptance"},
+			'18': {id: 18, name: "Not Reproduced"},
+			'19': {id: 19, name: "Reopened"}
+		},
 
-		issueTrackers: [
+
+		issueTrackers: [ // DEPRECATED - DO NOT USE
 			{id: 1,  name: "Bug"},
 			{id: 2,  name: "Feature"},
 			{id: 4,  name: "Task"},
@@ -153,6 +175,16 @@ function Settings() {
 			{id: 9,  name: "ADJ"},
 			{id: 10, name: "Question"}
 		],
+		issueTrackersMap: {
+			'1':  {id: 1,  name: "Bug"},
+			'2':  {id: 2,  name: "Feature"},
+			'4':  {id: 4,  name: "Task"},
+			'5':  {id: 5,  name: "Change request"},
+			'6':  {id: 6,  name: "Requirement"},
+			'7':  {id: 7,  name: "CR"},
+			'9':  {id: 9,  name: "ADJ"},
+			'10': {id: 10, name: "Question"}
+		},
 
 		responseLimit: 100, // Redmine never return more than 100
 

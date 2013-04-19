@@ -76,18 +76,27 @@ function AppController(userSettings, appSettings, redmineSettings){
 		self.appView.switchFromGreatingsToPleaseWait();
 	}
 
-	this.eventHandler.onProjectSummaryRefreshBtnClick = function(project) {
-		console.log('Refresh project summary button clicked for ' + project.id);
-		self.dataController.reloadProductData(project);
+
+	this.eventHandler.onVersionSummaryRefreshBtnClick = function(project, version) {
+		console.log('Refresh version summary button clicked for ' + project.id + ' / ' + version.name);
+		self.dataController.reloadVersionData(project, version);
 	}
 
 	// Version issues load events
-	this.eventHandler.versionBatchLoadStarted = function (project, version) {
-		console.log('Event:version issues load started for' + project.id + ' / ' + version.name );
-		self.appView.updateBatchLoadProgressBar(project, version, 0, 'none');
 
-		console.log('Calling create summary blank for ' + project.id + ' / ' + version.name);
-		self.appView.createSummary(project, version);
+	this.eventHandler.projectLoadCompleted = function (project) {
+		console.log('Event: project versions load completed for ' + project.id);
+		self.appView.createProjectSummary(project);
+	}
+	this.eventHandler.versionCreated = function (project, version) {
+		console.log('Event: project versions load completed for ' + project.id + ' / ' + version.name);
+		self.appView.addVersionSummary(project, version);
+	}
+
+
+	this.eventHandler.versionBatchLoadStarted = function (project, version) {
+		console.log('Event:version issues load started for ' + project.id + ' / ' + version.name );
+		self.appView.updateBatchLoadProgressBar(project, version, 0, 'none');
 	}
 
 	this.eventHandler.versionBatchLoadUpdated = function (project, version, current, total) {
@@ -98,10 +107,11 @@ function AppController(userSettings, appSettings, redmineSettings){
 
 	this.eventHandler.versionBatchLoadCompleted = function (project, version) {
 		console.log('Event: version issues load completed for ' + project.id + ' / ' + version.name);
-
 		self.dataController.createDataStructureFromAllIssues(project, version);
 		self.appView.updateSummary(project, version);
 	}
+
+
 
 
 

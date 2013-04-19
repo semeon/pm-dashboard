@@ -7,226 +7,281 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
     var rootNode = $(projectSummaryRootSelector);
 
     var projectSummaryNode;
-    var projectSummaryBodyNode;
-    var projectSummaryTableId = 'summary_table_' + project.id;
+    var hiddenNodeForModals;
+    var versionSummaryNodes = {};
+
+    var versionTableIdPrefix = 'ver_summary_table_';
+    var versionBodyIdPrefix = 'ver_summary_table_body_';
 
 
     var versionRows = {};
 
     this.create = function () {
-        console.log('Creating project summary header ' + project.id);
+		console.log('Creating project summary ' + project.id);
 
-        projectSummaryNode = $('<div id="summary_' + project.id + '" class="hide"></div>');
-        rootNode.append(projectSummaryNode);
+		projectSummaryNode = $('<div id="proj_summary_' + project.id + '" class="border-bottom hide"></div>');
+		rootNode.append(projectSummaryNode);
+		projectSummaryNode.append(createProjectHeader());
+		projectSummaryNode.fadeIn();
 
-        createProjectTableHeader();
-        createProjectControlsNode();
-        createProjectStandardTableNode();
+		hiddenNodeForModals = $('<div class=""></div>');
+		projectSummaryNode.append(hiddenNodeForModals);
 
-        projectSummaryNode.fadeIn();
-
-        // Header --------------------------------------
-        function createProjectTableHeader() {
-            var headerHtml = '<h3 id="header_' + project.id + '" class="pull-left">' + project.title + '</h3>';
-            projectSummaryNode.append(headerHtml);
-        }
-
-        // Controls ------------------------------------
-        function createProjectControlsNode() {
-
-            var btnToolBar = $('<div class="btn-toolbar  pull-right"></div>');
-            projectSummaryNode.append(btnToolBar);
-
-            var customQueryBtnGroupNode = $('<div class="btn-group"></div>');
-            btnToolBar.append(customQueryBtnGroupNode);
-
-            if(prj.customQueries) {
-
-                var ddBtnNode = $('<button class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">Custom Queries <span class="caret"></span></button>');
-                customQueryBtnGroupNode.append(ddBtnNode);
-
-                var customQueriesNode = $('<ul class="dropdown-menu"></ul>');
-                customQueryBtnGroupNode.append(customQueriesNode);
-
-                for (var cq=0; cq<prj.customQueries.length; cq++) {
-                    var query = prj.customQueries[cq];
-                    var href =  rs.redmineUrl + 
-                                rs.projectDataUrl + 
-                                project.id + '/' +
-                                rs.issuesRequestUrl + '?query_id=' + query.id;
-                    var ddItemNode = '<li><a href="' + href + '" target="_blank">' + query.title + '</a></li>';
-                    customQueriesNode.append(ddItemNode);
-                }
-
-            }
-
-
-            var otherBtnGroupNode = $('<div class="btn-group"></div>');
-            btnToolBar.append(otherBtnGroupNode);
-
-            var refreshBtnNode = $('<button class="btn btn-small" type="button"><i class="icon-refresh"></i></button>');
-            otherBtnGroupNode.append(refreshBtnNode);
-
-
-            refreshBtnNode.bind(  'click', 
-                                  function() {
-                                    eventHandler.onProjectSummaryRefreshBtnClick(project);
-                                  }
-                               );
-        }
-
-        // Standard stat table --------------------------
-        function createProjectStandardTableNode() {
-
-            var tableNodeHtml = '';
-            tableNodeHtml = tableNodeHtml + '<table id="' + projectSummaryTableId + 
-                                            '" class="table table-bordered table-condensed table-hover">';
-            // tableNodeHtml = tableNodeHtml +   '<caption>Number of issues in corresponding versions</caption>';
-            tableNodeHtml = tableNodeHtml +   '<thead><tr>';
-            tableNodeHtml = tableNodeHtml +     '<th width="120">Version</th>';
-            tableNodeHtml = tableNodeHtml +     '<th width="100">Due Date</th>';
-
-            var columns = project.customStatuses;
-
-            // Columns
-            for (var c = 0; c<columns.length; c++) {
-                tableNodeHtml = tableNodeHtml +   '<th>' + columns[c].title + '</th>';
-            }
-
-            tableNodeHtml = tableNodeHtml +     '<th style="width: 60px;">Total</th>';
-            tableNodeHtml = tableNodeHtml +   '</tr></thead>';
-            tableNodeHtml = tableNodeHtml + '</table>';
-            var tableNode = $(tableNodeHtml);
-            projectSummaryNode.append(tableNode);
-
-            projectSummaryBodyNode = $('<tbody></tbody>');
-            tableNode.append(projectSummaryBodyNode);
-
-            rootNode.append('<br/>');
-            rootNode.append('<br/>');
-        }
+		// Project Header --------------------------------------
+		function createProjectHeader() {
+			var headerHtml = '<div><h4 id="proj_header_' + 
+								project.id + '">Project: ' + 
+								project.title + '</h4></div>';
+			var headerNode = $(headerHtml);
+			return headerNode;
+		}
 
     }
 
+    this.addVersion = function (version) {
+
+		console.log('- Creating version summary blank' + version.name);
+
+		var versionSummaryNode = $('<div id="ver_summary_' + version.id + '" class="hide"></div>');
+		versionSummaryNodes[version.id] = versionSummaryNode;
+		projectSummaryNode.append(versionSummaryNode);
+
+		versionSummaryNode.append( createVersionHeader(version) );
+		versionSummaryNode.append( createVersionControls(version) );
+		versionSummaryNode.append( createVersionTable(version) );
+
+		versionSummaryNode.fadeIn();
+
+		// Version Header --------------------------------------
+		function createVersionHeader(version) {
+		    var headerNode = '<h5 id="ver_header_' + 
+		                        version.id + '" class="pull-left">Version: ' + 
+		                        version.name + ' / Due to: ' + 
+		                        version.due_date + '</h5>';
+		    return headerNode;
+		}
+
+		// Version Controls ------------------------------------
+		function createVersionControls(version) {
+
+		    var btnToolBar = $('<div class="btn-toolbar  pull-right"></div>');
+
+		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
+		    btnToolBar.append(otherBtnGroupNode);
+
+		    var refreshBtnNode = $('<button class="btn btn-small" type="button"><i class="icon-refresh"></i></button>');
+		    otherBtnGroupNode.append(refreshBtnNode);
+
+
+		    refreshBtnNode.bind(  'click', 
+		                          function() {
+		                            eventHandler.onVersionSummaryRefreshBtnClick(project, version);
+		                          }
+		                       );
+
+		    return btnToolBar;
+
+		    // if(prj.customQueries) {
+		        // var customQueryBtnGroupNode = $('<div class="btn-group"></div>');
+		        // btnToolBar.append(customQueryBtnGroupNode);
+
+		    //     var ddBtnNode = $('<button class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">Custom Queries <span class="caret"></span></button>');
+		    //     customQueryBtnGroupNode.append(ddBtnNode);
+
+		    //     var customQueriesNode = $('<ul class="dropdown-menu"></ul>');
+		    //     customQueryBtnGroupNode.append(customQueriesNode);
+
+		    //     for (var cq=0; cq<prj.customQueries.length; cq++) {
+		    //         var query = prj.customQueries[cq];
+		    //         var href =  rs.redmineUrl + 
+		    //                     rs.projectDataUrl + 
+		    //                     project.id + '/' +
+		    //                     rs.issuesRequestUrl + '?query_id=' + query.id;
+		    //         var ddItemNode = '<li><a href="' + href + '" target="_blank">' + query.title + '</a></li>';
+		    //         customQueriesNode.append(ddItemNode);
+		    //     }
+
+		    // }
+		}
+
+		// Standard version table --------------------------
+		function createVersionTable(version) {
+
+		    var tableNodeHtml = '';
+		    tableNodeHtml = tableNodeHtml + '<table id="' + versionTableIdPrefix + version.id + 
+		                                    '" class="table table-bordered table-condensed table-hover">';
+		    tableNodeHtml = tableNodeHtml +   '<thead><tr>';
+		    tableNodeHtml = tableNodeHtml +     '<th width="100" style="text-align: left!important;">Tracker</th>';
+
+		    // Columns
+			var columns = project.customStatuses;
+		    for (var c = 0; c<columns.length; c++) {
+		        tableNodeHtml = tableNodeHtml +   '<th>' + columns[c].title + '</th>';
+		    }
+
+		    tableNodeHtml = tableNodeHtml +     '<th width="80">Total</th>';
+		    tableNodeHtml = tableNodeHtml +   '</tr></thead>';
+		    tableNodeHtml = tableNodeHtml + '</table>';
+
+		    var tableNode = $(tableNodeHtml);
+		    
+		    var bodyId = versionBodyIdPrefix + version.id;
+		    projectSummaryBodyNode = $('<tbody id="' + bodyId + '" class="hidden"></tbody>');
+		    tableNode.append(projectSummaryBodyNode);
+
+		    return tableNode;
+		}
+
+
+    }
+
+
     this.updateVersion = function (version) {
-        console.log('Updating table row for ' + version.name);
+		console.log('Updating version summary ' + version.name);
 
-        // Create row
-        // ---------------------------------------------------------------------------
+        var bodyId = versionBodyIdPrefix + version.id;
+        var bodyNode = $('#' + bodyId)
 
-            var dueDate = Date.parseExact(version.due_date, 'yyyy-MM-dd');
-            var rowStyle = '';
-            if ( Date.parse('today').add(7).days().isAfter(dueDate)) {
-                rowStyle = 'warning';
-            } else if( Date.parse('today').add(3).days().isAfter(dueDate)) {
-                rowStyle = 'error';
-            }
+        bodyNode.empty();
 
-            var row = versionRows[version.id];
-            if( row == undefined ) {
-                row = $('<tr class="hide ' + rowStyle + '"></tr>');
-                versionRows[version.id] = row;
-                projectSummaryBodyNode.append(row);
-            }
-            row.fadeOut().empty();
-            var html = '';
+		var rowCounter = 0;
 
-            var colNumber;
-            var sortableCols = [];
-            var nonSortableCols = [];
+		// Each row is a tracker
+        for (var it=0; it<project.issueTrackers.length; it++) {
+			rowCounter++;
+        	var trackerId = project.issueTrackers[it];
+			var trackerName = rs.issueTrackersMap[String(trackerId)].name;
 
-        // first cell - version title with modal popup
-        // ---------------------------------------------------------------------------
-            html = html + '<td class="align-right">' + version.name + '</td>';
-            colNumber = 0;
-            sortableCols.push(colNumber);
+			console.log('- Creating row for ' + trackerName + ' (' + trackerId + ')');
 
+			// Create row
+			// ---------------------------------------------------------------------------
+				var rowNode = $('<tr class="hide"></tr>');
+				bodyNode.append(rowNode);
 
-        // second cell - version due date
-        // ---------------------------------------------------------------------------
-            html = html + '<td>' + version.due_date + '</td>';
-            colNumber++;
-            sortableCols.push(colNumber);
+				// Create "tracker" column
+				// ---------------------------------------------------------------------------
+					console.log('-- Creating cell for traker name: ' + trackerName);
+					var node = $('<td style="text-align: left!important;">' + trackerName + '</td>');
+					rowNode.append(node)
 
+				// Create data columns
+				// ---------------------------------------------------------------------------
+					var columns = project.customStatuses;
+					var columnCounter = 0;
+					for (cs in columns) {
+						columnCounter++;
 
-        // data columns
-        // ---------------------------------------------------------------------------
-            var columns = project.customStatuses;
-            for (var c = 0; c<columns.length; c++) {
+						var groupName = columns[cs].title;
+						var issues = version.getIssuesByCustomStatusAndTracker(groupName, trackerId);
 
-                var group = version.issueGroups[columns[c].title];
-                var value = group.count;
-                console.log('  Value for ' + project.id + ' / ' + version.name + ' / ' + columns[c].title + ': ' + value);
-
-                var valueHtml = '' + value;
-
-                if (value > 0) {
-
-                    // value with modal
-                    // ---------------------------------------------------------------------------
-                    var modalId = 'modal_' + version.id + '_' + c;
-                    valueHtml = '<a href="#' + modalId + 
-                                '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
-                                value + '</a>';
-
-                    var title = 'Issues of ' + project.title + ' / ' + version.name + ' / ' + columns[c].title;
-                    var dataTableId = 'datatable_' + modalId;
-
-                    // CREATION OF THE MODAL
-                    if ( $('#' + modalId) ) $('#' + modalId).remove();
-                    projectSummaryNode.append(addModal(group.issues, modalId, title, dataTableId));
-
-                    $('#' + dataTableId).dataTable({
-                                                    'bPaginate': false,
-                                                    'bDestroy': true
-                                                    });        
-                }
-                html = html + '<td>' + valueHtml + '</td>';
-
-                colNumber++;
-                nonSortableCols.push(colNumber);
-            }
-
-        // last cell - total issues number
-        // ---------------------------------------------------------------------------
-            if (version.issues.length > 0) {
-                var versionIssuesModalId = 'modal_' + version.id + '_allissues';
-                var versionIssuesDataTableId = 'datatable_' + versionIssuesModalId;
-                var versionIssuesTitle = 'Issues of ' + project.title + ' / ' + version.name;
-                var cellContent = '<a href="#' + versionIssuesModalId + 
-                                '" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
-                                 version.issues.length + '</a>';
-
-                if ( $('#' + versionIssuesModalId) ) $('#' + versionIssuesModalId).remove();
-                projectSummaryNode.append(addModal(version.issues, versionIssuesModalId, versionIssuesTitle, versionIssuesDataTableId));
-
-                $('#' + versionIssuesDataTableId).dataTable({
-                                                'bPaginate': false,
-                                                'bDestroy': true
-                                                });
-
-            } else {
-                cellContent = version.issues.length;
-            }
-            html = html + '<td>' + cellContent + '</td>';
-            colNumber++;
-            nonSortableCols.push(colNumber); 
+						console.log('-- Creating cell for custom status: ' + groupName);
+						rowNode.append( createDataCell(issues, rowCounter, columnCounter, trackerName + ' / ' + groupName) );
+					}
 
 
-        // Table actions
-        // ---------------------------------------------------------------------------
-            row.append(html).fadeIn();
+				// Create total column
+				// ---------------------------------------------------------------------------
+					console.log('-- Creating cell for total');
+					var issues = version.getTrackerIssues(trackerId);
+					rowNode.append( createDataCell(issues, rowCounter, 'total', trackerName) );
 
-            // Apply sorting to the summary table
-            $('#' + projectSummaryTableId).dataTable({
-                                            'bPaginate': false,
-                                            'bFilter': false,
-                                            'aoColumnDefs': [
-                                                            { "bSortable": false, "aTargets": nonSortableCols }
-                                                            ],
-                                            'aaSorting': [[1,'asc']],
-                                            'bDestroy': true
-                                            });
+			rowNode.fadeIn();
+
+		} // End of Tracker Row --------------------------------------------
+
+
+
+		//  Create footer row
+		// ------------------------------------------------------------------------------------
+
+			var sumRowNode = $('<tr class="hide"></tr>');
+			bodyNode.append(sumRowNode);
+
+			// Create "Summary" column
+			// ---------------------------------------------------------------------------
+				console.log('-- Creating cell for version summary caption');
+				var node = $('<th style="text-align: left!important;">All Trackers</th>');
+				sumRowNode.append(node)
+
+
+			// Create data columns
+			// ---------------------------------------------------------------------------
+				var columns = project.customStatuses;
+				var columnCounter = 0;
+				for (cs in columns) {
+					columnCounter++;
+
+					var groupName = columns[cs].title;
+					var issues = version.getCustomStatusIssues(groupName);
+
+					console.log('-- Creating cell for custom status: ' + groupName);
+					sumRowNode.append( createDataCell(issues, rowCounter, columnCounter, trackerName + ' / ' + groupName) );
+				}
+
+			// Create Total/Total cell
+			// ---------------------------------------------------------------------------
+				columnCounter++;
+
+				var issues = version.issues;
+
+				console.log('-- Creating cell for custom status: ' + groupName);
+				sumRowNode.append( createDataCell(issues, rowCounter, columnCounter, trackerName + ' / ' + groupName) );
+
+
+
+		sumRowNode.fadeIn();
+
+
+		function createDataCell (issues, rowCounter, columnCounter, columnName) {
+			var value = issues.length;
+			var valueHtml = value;
+
+			if (value > 0) {
+				// value with modal
+				// ---------------------------------------------------------------------------
+					var modalId = 'modal_' + version.id + '_' + rowCounter + '_' + columnCounter;
+					valueHtml = '<a href="#' + modalId + 
+								'" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
+								value + '</a>';
+
+					var dataTableId = 'datatable_' + modalId;
+                    var title = project.title + ' / ' + version.name + ' / ' + columnName;
+
+					if ( $('#' + modalId) ) $('#' + modalId).remove();
+					hiddenNodeForModals.append(addModal(issues, modalId, title, dataTableId));
+
+					$('#' + dataTableId).dataTable({
+											'bPaginate': false,
+											'bDestroy': true
+											}); 
+			}
+
+			var tdNode = $('<td></td>');
+			tdNode.append(valueHtml);
+
+			return tdNode;
+
+        } 
+
+
+        return;
+
+
+        // // Table actions
+        // // ---------------------------------------------------------------------------
+        //     row.append(html).fadeIn();
+
+        //     // Apply sorting to the summary table
+        //     $('#' + projectSummaryTableId).dataTable({
+        //                                     'bPaginate': false,
+        //                                     'bFilter': false,
+        //                                     'aoColumnDefs': [
+        //                                                     { "bSortable": false, "aTargets": nonSortableCols }
+        //                                                     ],
+        //                                     'aaSorting': [[1,'asc']],
+        //                                     'bDestroy': true
+                                            // });
 
     }
 
