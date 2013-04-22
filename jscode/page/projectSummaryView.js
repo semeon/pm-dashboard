@@ -107,7 +107,12 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
 		    btnToolBar.append(otherBtnGroupNode);
 
-			var hideButton = $('<button class="btn btn-mini" type="button" data-toggle="button">Hide</button>');
+			var hideButton = $('<button class="btn btn-mini" ' +
+										'type="button" ' +
+										'data-toggle="button" ' +
+										'title="Collapse or expand version summary" ' +
+																	'><i class="icon-resize-small"></i></button>');
+
 			otherBtnGroupNode.append(hideButton);
 			hideButton.bind(  'click', 
 									function() {
@@ -116,10 +121,11 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 								);
 
 
-			var detailsButton = $('<button class="btn btn-mini" ' + 
+			var detailsButton = $('<button 	class="btn btn-mini" ' + 
 											'type="button" ' + 
 											'data-toggle="button" ' +
-																	'>Details</button>');
+											'title="See or hide detailed report" ' +
+																	'><i class="icon-list"></i></button>');
 			otherBtnGroupNode.append(detailsButton);
 			detailsButton.bind(  'click', 
 									function() {
@@ -129,7 +135,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 
 
-			var refreshBtnNode = $('<button class="btn btn-mini" type="button">Refresh</button>');
+			var refreshBtnNode = $('<button class="btn btn-mini" type="button" title="Refresh data"><i class="icon-refresh"></i></button>');
 			otherBtnGroupNode.append(refreshBtnNode);
 			refreshBtnNode.bind(  'click', 
 									function() {
