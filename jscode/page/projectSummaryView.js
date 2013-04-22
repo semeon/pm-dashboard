@@ -8,7 +8,11 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
     var projectSummaryNode;
     var hiddenNodeForModals;
-    var versionSummaryNodes = {};
+    var projectSummaryContentNode;
+    // var versionSummaryNodes = {};
+
+	var projectSummaryNodeIdPrefix = 'proj_summary_';
+	var projectSummaryContentNodeIdPrefix = 'proj_summary_content_';
 
 	var versionControlsIdPrefix = 'ver_summary_controls_';
 	var versionTableIdPrefix = 'ver_summary_table_';
@@ -21,21 +25,51 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
     this.create = function () {
 		console.log('Creating project summary ' + project.id);
 
-		projectSummaryNode = $('<div id="proj_summary_' + project.id + '" class="hide well well-small"></div>');
+		projectSummaryNode = $('<div id="' + projectSummaryNodeIdPrefix + project.id + '" class="hide well well-small"></div>');
 		rootNode.append(projectSummaryNode);
 		projectSummaryNode.append(createProjectHeader());
+		projectSummaryNode.append(createProjectControls());
+		projectSummaryNode.append('<br class="clearfix"/>');
+		projectSummaryNode.append('<br class="clearfix"/>');
+		// projectSummaryNode.append('<br class="clearfix"/>');
+		// projectSummaryNode.append('<hr class="clearfix"/>');
 		projectSummaryNode.fadeIn();
 
-		hiddenNodeForModals = $('<div class=""></div>');
+		hiddenNodeForModals = $('<div class="clearfix"></div>');
 		projectSummaryNode.append(hiddenNodeForModals);
+
+		projectSummaryContentNode = $('<div id="' + projectSummaryContentNodeIdPrefix + project.id + '" class="border-top clearfix"></div>');
+		projectSummaryNode.append(projectSummaryContentNode);
+
 
 		// Project Header --------------------------------------
 		function createProjectHeader() {
-			var headerHtml = '<div><h4 id="proj_header_' + 
+			var headerHtml = '<div><h4 class="pull-left clearfix" id="proj_header_' + 
 								project.id + '">Project: ' + 
 								project.title + '</h4></div>';
 			var headerNode = $(headerHtml);
+
+
 			return headerNode;
+		}
+
+		// Project Controls ------------------------------------
+		function createProjectControls() {
+
+		    var btnToolBar = $('<div id="" class="btn-toolbar pull-right"></div>');
+
+		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
+		    btnToolBar.append(otherBtnGroupNode);
+
+			var hideButton = $('<button class="btn btn-mini" type="button" data-toggle="button">Hide Project</button>');
+			otherBtnGroupNode.append(hideButton);
+			hideButton.bind(  'click', 
+									function() {
+										$('#' + projectSummaryContentNodeIdPrefix + project.id).fadeToggle();
+									}
+								);
+
+		    return btnToolBar;
 		}
 
     }
@@ -45,8 +79,8 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		console.log('- Creating version summary blank' + version.name);
 
 		var versionSummaryNode = $('<div id="ver_summary_' + version.id + '" class="hide clearfix"></div>');
-		versionSummaryNodes[version.id] = versionSummaryNode;
-		projectSummaryNode.append(versionSummaryNode);
+		// versionSummaryNodes[version.id] = versionSummaryNode;
+		projectSummaryContentNode.append(versionSummaryNode);
 
 		versionSummaryNode.append( createVersionHeader(version) );
 		versionSummaryNode.append( createVersionControls(version) );
@@ -73,24 +107,27 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
 		    btnToolBar.append(otherBtnGroupNode);
 
-			var hideButton = $('<button class="btn btn-mini" type="button">Hide</button>');
+			var hideButton = $('<button class="btn btn-mini" type="button" data-toggle="button">Hide</button>');
 			otherBtnGroupNode.append(hideButton);
 			hideButton.bind(  'click', 
 									function() {
-										$('#' + versionTableIdPrefix + version.id).toggle();
-										hideButton.toggleClass('active');										
+										$('#' + versionTableIdPrefix + version.id).fadeToggle();
 									}
 								);
 
 
-			var detailsButton = $('<button class="btn btn-mini" type="button">Details</button>');
+			var detailsButton = $('<button class="btn btn-mini" ' + 
+											'type="button" ' + 
+											'data-toggle="button" ' +
+																	'>Details</button>');
 			otherBtnGroupNode.append(detailsButton);
 			detailsButton.bind(  'click', 
 									function() {
-										$('#' + versionBodyIdPrefix + version.id).toggle();
-										detailsButton.toggleClass('active');										
+										$('#' + versionBodyIdPrefix + version.id).fadeToggle();
 									}
 								);
+
+
 
 			var refreshBtnNode = $('<button class="btn btn-mini" type="button">Refresh</button>');
 			otherBtnGroupNode.append(refreshBtnNode);
@@ -130,7 +167,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 			tableNode.append(projectSummaryBodyNode);
 
 			var footerId = versionFooterIdPrefix + version.id;
-			projectSummaryFooterNode = $('<tfoot id="' + footerId + '" class="hidden"></tfoot>');
+			projectSummaryFooterNode = $('<tfoot id="' + footerId + '"></tfoot>');
 			tableNode.append(projectSummaryFooterNode);
 
  
@@ -208,7 +245,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 			// Create "Summary" column
 			// ---------------------------------------------------------------------------
 				console.log('-- Creating cell for version summary caption');
-				var node = $('<td style="text-align: left!important;">All Trackers</td>');
+				var node = $('<th style="text-align: left!important;">All Trackers</th>');
 				sumRowNode.append(node)
 
 
