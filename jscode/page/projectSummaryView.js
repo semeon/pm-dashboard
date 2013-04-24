@@ -247,6 +247,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 			var sumRowNode = $('<tr class="hide info"></tr>');
 			footerNode.append(sumRowNode);
+            rowCounter++;
 
 			// Create "Summary" column
 			// ---------------------------------------------------------------------------
