@@ -92,10 +92,15 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		// Version Header --------------------------------------
 		function createVersionHeader(version) {
+
+            var due = version.due_date;
+            alert(due);
+            if (due == undefined) due = 'No Date';
+
 		    var headerNode = $('<h5 id="ver_header_' + 
 		                        version.id + '" class="pull-left">Version: ' + 
 		                        version.name + ' / Due to: ' + 
-		                        version.due_date + '</h5>');
+		                        due + '</h5>');
 		    return headerNode;
 		}
 

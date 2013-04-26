@@ -35,70 +35,71 @@ function Settings() {
 		// 					]
 		// },
 
-	      { 
-	      	id: 'isori', 				
-	        title: 'FPK Loyalty',
-			issueTrackers: [1, 2, 10], 
-			customStatuses: [
-				{title: 'Dev', 	includes: [1, 2, 19]},
-				{title: 'Testing', 		includes: [3, 6, 18]},
-				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [5]}
-			],
-			customQueries: [
-				{id: 515, title: '10.0: In Development'},
-				{id: 516, title: '10.0: Ready for Deploy'},
-				{id: 517, title: '10.0: Ready for QA'}
-			]
-	      }
-	      ,
-	      { id: 'fpkloyalfeedback',
-	        title: 'FPK Loyalty External',
-	        queryTitles: ['Total' ],
-	        versions: [
-	          { version: '10.0', 
-	            queries: ['377']
-	          }
-	        ],
-			issueTrackers: [1, 2, 10],
-			customStatuses: [
-				{title: 'Not Started', 	includes: [1]},
-				{title: 'In Progress', 	includes: [2, 19, 6, 18]},
-				{title: 'Blocked', 		includes: [4, 14]},
-				{title: 'Done', 		includes: [3, 5, 15]}
-			]
-	      }
-	  //     ,
-	  //     { id: 'rsalfr',
-	  //       title: 'RS Alfresco',
-	  //       queryTitles: ['Total' ],
-	  //       versions: [
-	  //         { version: '2.0', 
-	  //           queries: ['435']
-	  //         },
-	  //         { version: '3.0', 
-	  //           queries: ['434']
-	  //         }
-	  //       ],
-			// issueTrackers: [1, 2, 10],
-			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2, 19]},
-			// 	{title: 'Testing', 		includes: [3, 6, 18]},
-			// 	{title: 'Blocked', 		includes: [4, 14]},
-			// 	{title: 'Done', 		includes: [5]}
-			// ]
-	  //     }
-	  //     ,
-	  //     { id: 'fpkloyalwebsrv',
-	  //       title: 'Test Project Title',
-	  //       queryTitles: ['Total' ],
-	  //       versions: [],
-			// issueTrackers: [1, 2, 10],
-			// customStatuses: [
-			// 	{title: 'Development', 	includes: [1, 2]},
-			// 	{title: 'Done', 		includes: [5]}
-			// ]
-	  //     }
+	// FPKL Sowtware Development
+	// ---------------------------------------
+			{ 
+				id: 'isori', 				
+				title: 'FPK Loyalty',
+				issueTrackers: [1, 2, 10], 
+				customStatuses: [
+					{title: 'Dev', 		includes: [1, 2, 19]},
+					{title: 'Testing', 	includes: [3, 6, 18]},
+					{title: 'Blocked', 	includes: [4, 14]},
+					{title: 'Done', 	includes: [5]}
+				]
+			}
+
+	// FPKL Tech Support	      
+	// ---------------------------------------
+			,
+			{ id: 'fpkloyaltech',
+				title: 'FPKL Tech Support',
+				issueTrackers: [1, 2, 10],
+				customStatuses: [
+					{title: 'Not Started', 	includes: [1]},
+					{title: 'In Progress', 	includes: [2, 19, 6, 18]},
+					{title: 'Blocked', 		includes: [4, 14]},
+					{title: 'Done', 		includes: [3, 5, 15]}
+				]
+			}
+
+	// FPKL External Issues
+	// ---------------------------------------
+			,
+			{ id: 'fpkloyalfeedback',
+				title: 'FPKL External',
+				issueTrackers: [1, 2, 10],
+				customStatuses: [
+					{title: 'Not Started', 	includes: [1]},
+					{title: 'In Progress', 	includes: [2, 19, 6, 18]},
+					{title: 'Blocked', 		includes: [4, 14]},
+					{title: 'Done', 		includes: [3, 5, 15]}
+				]
+			}
+
+	// RS Alfresco
+	// ---------------------------------------------------------
+			// ,
+			// { id: 'rsalfr',
+			// 	title: 'RS Alfresco',
+			// 	queryTitles: ['Total' ],
+			// 	versions: [
+			// 		{ version: '2.0', 
+			// 		queries: ['435']
+			// 		},
+			// 		{ version: '3.0', 
+			// 		queries: ['434']
+			// 		}
+			// 	],
+			// 	issueTrackers: [1, 2, 10],
+			// 	customStatuses: [
+			// 		{title: 'Development', 	includes: [1, 2, 19]},
+			// 		{title: 'Testing', 		includes: [3, 6, 18]},
+			// 		{title: 'Blocked', 		includes: [4, 14]},
+			// 		{title: 'Done', 		includes: [5]}
+			// 	]
+			// }
+
 	    ],
 	    
     },
