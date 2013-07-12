@@ -78,7 +78,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		console.log('- Creating version summary blank' + version.name);
 
-		var versionSummaryNode = $('<div id="ver_summary_' + version.id + '" class="hide clearfix"></div>');
+		var versionSummaryNode = $('<div id="ver_summary_' + project.id + '_' + version.id + '" class="hide clearfix"></div>');
 		// versionSummaryNodes[version.id] = versionSummaryNode;
 		projectSummaryContentNode.append(versionSummaryNode);
 
@@ -106,7 +106,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		// Version Controls ------------------------------------
 		function createVersionControls(version) {
 
-		    var btnToolBar = $('<div id="' + versionControlsIdPrefix + version.id + '" class="btn-toolbar  pull-right"></div>');
+		    var btnToolBar = $('<div id="' + versionControlsIdPrefix + project.id + '_' + version.id + '" class="btn-toolbar  pull-right"></div>');
 
 		    var otherBtnGroupNode = $('<div class="btn-group"></div>');
 		    btnToolBar.append(otherBtnGroupNode);
@@ -120,7 +120,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 			otherBtnGroupNode.append(hideButton);
 			hideButton.bind(  'click', 
 									function() {
-										$('#' + versionTableIdPrefix + version.id).fadeToggle();
+										$('#' + versionTableIdPrefix + project.id + '_' + version.id).fadeToggle();
 									}
 								);
 
@@ -133,7 +133,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 			otherBtnGroupNode.append(detailsButton);
 			detailsButton.bind(  'click', 
 									function() {
-										$('#' + versionBodyIdPrefix + version.id).fadeToggle();
+										$('#' + versionBodyIdPrefix + project.id + '_' + version.id).fadeToggle();
 									}
 								);
 
@@ -155,7 +155,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 		function createVersionTable(version) {
 
 		    var tableNodeHtml = '';
-		    tableNodeHtml = tableNodeHtml + '<table id="' + versionTableIdPrefix + version.id + 
+		    tableNodeHtml = tableNodeHtml + '<table id="' + versionTableIdPrefix + project.id + '_' + version.id + 
 		                                    '" class="table table-bordered table-condensed table-hover">';
 		    tableNodeHtml = tableNodeHtml +   '<thead><tr class="info">';
 		    tableNodeHtml = tableNodeHtml +     '<th width="100" style="text-align: left!important;">Tracker</th>';
@@ -172,11 +172,11 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		    var tableNode = $(tableNodeHtml);
 		    
-			var bodyId = versionBodyIdPrefix + version.id;
+			var bodyId = versionBodyIdPrefix + project.id + '_' + version.id;
 			projectSummaryBodyNode = $('<tbody id="' + bodyId + '" class="hide"></tbody>');
 			tableNode.append(projectSummaryBodyNode);
 
-			var footerId = versionFooterIdPrefix + version.id;
+			var footerId = versionFooterIdPrefix + project.id + '_' + version.id;
 			projectSummaryFooterNode = $('<tfoot id="' + footerId + '"></tfoot>');
 			tableNode.append(projectSummaryFooterNode);
 
@@ -191,7 +191,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
     this.updateVersion = function (version) {
 		console.log('Updating version summary ' + version.name);
 
-        var bodyId = versionBodyIdPrefix + version.id;
+        var bodyId = versionBodyIdPrefix + project.id + '_' + version.id;
         var bodyNode = $('#' + bodyId)
 
         bodyNode.empty();
@@ -246,7 +246,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 
 		//  Create footer row
 		// ------------------------------------------------------------------------------------
-			var footerNode = $('#' + versionFooterIdPrefix + version.id);
+			var footerNode = $('#' + versionFooterIdPrefix + project.id + '_' + version.id);
 			footerNode.empty();
 
 			var sumRowNode = $('<tr class="hide info"></tr>');
