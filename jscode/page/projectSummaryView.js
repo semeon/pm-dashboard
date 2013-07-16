@@ -295,7 +295,7 @@ function ProjectSummaryView ( prj, eventHandler, rs ) {
 			if (value > 0) {
 				// value with modal
 				// ---------------------------------------------------------------------------
-					var modalId = 'modal_' + version.id + '_' + rowCounter + '_' + columnCounter;
+					var modalId = 'modal_' + project.id + '_' + version.id + '_' + rowCounter + '_' + columnCounter;
 					valueHtml = '<a href="#' + modalId + 
 								'" role="button" type="link" data-toggle="modal"  title="Click to see the issues in a popup">' + 
 								value + '</a>';
