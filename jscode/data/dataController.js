@@ -185,7 +185,7 @@ function DataController(userSettings, appSettings, redmineSettings, eventHandler
 				eventHandler.versionBatchLoadUpdated(project, version, loadedIssuesCount, data.total_count);
 
 				if (loadedIssuesCount < data.total_count) {
-					var nexPageNum = currentPageIssueCount;
+					var nexPageNum = loadedIssuesCount;
 					console.log(' - Calling next page load, page ' + nexPageNum);
 					requestIssuesPage(project, version, requestUrl, nexPageNum);
 
