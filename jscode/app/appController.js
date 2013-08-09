@@ -6,6 +6,7 @@ function AppController(userSettings, appSettings, redmineSettings){
 	this.eventHandler = {};
 
 	this.dataController = new DataController(userSettings, appSettings, redmineSettings, self.eventHandler);
+	this.dbController = new DbController(userSettings, appSettings, redmineSettings, self.eventHandler);
 	this.appView = new AppView(self.eventHandler, userSettings, appSettings, redmineSettings);
 	// this.dataModel = new DataModel(userSettings, appSettings, redmineSettings, self.dataController);
 	this.appMonitor = new AppMonitor(self.appView, self.dataController, self.dataModel);
