@@ -39,7 +39,7 @@ function Settings() {
 	// ---------------------------------------
 			{ 
 				id: 'pkserver', 				
-				title: 'Parking Server',
+				title: 'Parking Server DEBUG',
 				issueTrackers: [1, 2, 4, 5, 6, 10], 
 				customStatuses: [
 					{title: 'Not Started', 	includes: [1]},
