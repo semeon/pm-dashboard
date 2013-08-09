@@ -10,6 +10,8 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 		console.log('DEBUG Click');
 	 	
 	 	var requestUri = 'https://junior.iriscouch.com/dashboard_stats/my_id?callback=?';
+	 	// var requestUri = 'https://junior:eloisre@junior.cloudant.com/dashboard_stats/my_id_1?callback=?';
+
 		function callback(data) {
 			console.log('DB Req callback');
 			console.log(data);
