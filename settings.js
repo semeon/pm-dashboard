@@ -35,70 +35,20 @@ function Settings() {
 		// 					]
 		// },
 
-	// FPKL Sowtware Development
+	// ПРОЕКТ!
 	// ---------------------------------------
 			{ 
-				id: 'isori', 				
-				title: 'FPK Loyalty',
-				issueTrackers: [1, 2, 10], 
+				id: 'pkserver', 				
+				title: 'Parking Server',
+				issueTrackers: [1, 2, 4, 5, 6, 10], 
 				customStatuses: [
-					{title: 'Dev', 		includes: [1, 2, 19]},
-					{title: 'Testing', 	includes: [3, 6, 18]},
+					{title: 'Not Started', 	includes: [1]},
+					{title: 'In Progress', 	includes: [2, 19]},
 					{title: 'Blocked', 	includes: [4, 14]},
+					{title: 'Testing', 	includes: [3, 6, 18]},
 					{title: 'Done', 	includes: [5]}
 				]
 			}
-
-	// FPKL Tech Support	      
-	// ---------------------------------------
-			,
-			{ id: 'fpkloyaltech',
-				title: 'FPKL Tech Support',
-				issueTrackers: [1, 2, 10],
-				customStatuses: [
-					{title: 'Not Started', 	includes: [1]},
-					{title: 'In Progress', 	includes: [2, 19, 6, 18]},
-					{title: 'Blocked', 		includes: [4, 14]},
-					{title: 'Done', 		includes: [3, 5, 15]}
-				]
-			}
-
-	// FPKL External Issues
-	// ---------------------------------------
-			,
-			{ id: 'fpkloyalfeedback',
-				title: 'FPKL External',
-				issueTrackers: [1, 2, 10],
-				customStatuses: [
-					{title: 'Not Started', 	includes: [1]},
-					{title: 'In Progress', 	includes: [2, 19, 6, 18]},
-					{title: 'Blocked', 		includes: [4, 14]},
-					{title: 'Done', 		includes: [3, 5, 15]}
-				]
-			}
-
-	// RS Alfresco
-	// ---------------------------------------------------------
-			// ,
-			// { id: 'rsalfr',
-			// 	title: 'RS Alfresco',
-			// 	queryTitles: ['Total' ],
-			// 	versions: [
-			// 		{ version: '2.0', 
-			// 		queries: ['435']
-			// 		},
-			// 		{ version: '3.0', 
-			// 		queries: ['434']
-			// 		}
-			// 	],
-			// 	issueTrackers: [1, 2, 10],
-			// 	customStatuses: [
-			// 		{title: 'Development', 	includes: [1, 2, 19]},
-			// 		{title: 'Testing', 		includes: [3, 6, 18]},
-			// 		{title: 'Blocked', 		includes: [4, 14]},
-			// 		{title: 'Done', 		includes: [5]}
-			// 	]
-			// }
 
 	    ],
 	    
@@ -122,27 +72,6 @@ function Settings() {
 		projectDataUrl:     'projects/',
 		versionsRequestUrl:  'versions',
 
-		issueStatuses: [ // DEPRECATED - DO NOT USE
-			{id: 1,  name: "New"},
-			{id: 2,  name: "In Progress"},
-			{id: 3,  name: "Resolved"},
-			{id: 4,  name: "Need More Info"},
-			{id: 5,  name: "Closed"},
-			{id: 6,  name: "Rejected"},
-			{id: 7,  name: "Final"},
-			{id: 8,  name: "In Development"},
-			{id: 9,  name: "Delivered"},
-			{id: 10, name: "Accepted"},
-			{id: 11, name: "Final - Signed"},
-			{id: 12, name: "Uploaded"},
-			{id: 13, name: "Definition in Process"},
-			{id: 14, name: "On Hold"},
-			{id: 15, name: "Cancelled"},
-			{id: 16, name: "Final - Estimated"},
-			{id: 17, name: "Pending Acceptance"},
-			{id: 18, name: "Not Reproduced"},
-			{id: 19, name: "Reopened"}
-		],
 		issueStatusesMap: {
 			'1':  {id: 1,  name: "New"},
 			'2':  {id: 2,  name: "In Progress"},
@@ -165,22 +94,11 @@ function Settings() {
 			'19': {id: 19, name: "Reopened"}
 		},
 
-
-		issueTrackers: [ // DEPRECATED - DO NOT USE
-			{id: 1,  name: "Bug"},
-			{id: 2,  name: "Feature"},
-			{id: 4,  name: "Task"},
-			{id: 6,  name: "Requirement"},
-			{id: 5,  name: "Change request"},
-			{id: 7,  name: "CR"},
-			{id: 9,  name: "ADJ"},
-			{id: 10, name: "Question"}
-		],
 		issueTrackersMap: {
 			'1':  {id: 1,  name: "Bug"},
 			'2':  {id: 2,  name: "Feature"},
 			'4':  {id: 4,  name: "Task"},
-			'5':  {id: 5,  name: "Change request"},
+			'5':  {id: 5,  name: "Change req."},
 			'6':  {id: 6,  name: "Requirement"},
 			'7':  {id: 7,  name: "CR"},
 			'9':  {id: 9,  name: "ADJ"},
