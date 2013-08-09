@@ -3,12 +3,16 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 // -------------------------------------------------------------------------------------------
 // Iris's CouchDB try
 // -------------------------------------------------------------------------------------------
+// http://wiki.apache.org/couchdb/Reference
+
+
 	this.testDbReq = function () {
 		console.log('DEBUG Click');
 	 	
 	 	var requestUri = 'https://junior.iriscouch.com/dashboard_stats/my_id?callback=?';
 		function callback(data) {
 			console.log('DB Req callback');
+			console.log(data);
 		}
 
 		dbRequest(requestUri, null, callback);
@@ -18,8 +22,9 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 		$.ajax({
 			url: requestUri,
 			type: "GET",
-			dataType: "jsonp",
-			contentType: "application/json"
+			dataType: "json",
+			contentType: "application/json",
+			success: callback
 		});
 	}  
 
