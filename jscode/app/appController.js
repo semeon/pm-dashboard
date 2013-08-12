@@ -110,6 +110,9 @@ function AppController(userSettings, appSettings, redmineSettings){
 		console.log('Event: version issues load completed for ' + project.id + ' / ' + version.name);
 		self.dataController.createDataStructureFromAllIssues(project, version);
 		self.appView.updateSummary(project, version);
+		if (appSettings.statistics) {
+			self.dbController.saveVersion(project, version);
+		}
 	}
 
 

@@ -112,6 +112,7 @@ function Settings() {
 
 
 	this.appSettings = {
+		statistics: true,
 		appStatus: 'testing',
 		dbUri: 'http://speradze:5984/db/'
 	},

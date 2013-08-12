@@ -16,7 +16,8 @@
     <link  href="jslib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <script src="jslib/jquery/jquery-1.9.1.min.js"></script>
     <script src="jslib/bootstrap/js/bootstrap.min.js"></script>   
-    <script src="jslib/date.js"></script>   
+    <!-- <script src="jslib/date.js"></script>  -->
+    <script src="jslib/moment.min.js"></script>   
 
     <script src="jslib/datatables/js/jquery.dataTables.min.js"></script>   
     <link  href="jslib/datatables/css/jquery.dataTables.css" rel="stylesheet" media="screen">
@@ -40,7 +41,10 @@
 
     <script type="text/javascript" language="javascript" src="jscode/data/dataController.js"></script>
     <script type="text/javascript" language="javascript" src="jscode/data/dataModel.js"></script>
+
     <script type="text/javascript" language="javascript" src="jscode/stat/dbController.js"></script>
+    <script type="text/javascript" language="javascript" src="jscode/stat/snapshotModel.js"></script>
+
     <script type="text/javascript" language="javascript" src="jscode/app/appMonitor.js"></script>
     <script type="text/javascript" language="javascript" src="jscode/app/appController.js"></script>
 
@@ -62,6 +66,13 @@
         <li classz="active">
           <a href="#" onclick="app.dbController.testDbReq();">DB Debug</a>          
         </li>
+        <li classz="active">
+          <a href="http://docs.couchdb.org/en/latest/" target="_blank">Couch DB Docs</a>
+        </li>
+        <li classz="active">
+          <a href="http://wiki.apache.org/couchdb/HTTP_Document_API" target="_blank">Couch DB Wiki</a>
+        </li>
+
 
 			</ul>
 			<ul class="nav pull-right">
