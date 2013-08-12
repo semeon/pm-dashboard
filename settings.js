@@ -35,11 +35,11 @@ function Settings() {
 		// 					]
 		// },
 
-	// ПРОЕКТ!
-	// ---------------------------------------
+		// ПРОЕКТ!
+		// ---------------------------------------
 			{ 
 				id: 'pkserver', 				
-				title: 'Parking Server DEBUG',
+				title: 'Parking Server',
 				issueTrackers: [1, 2, 4, 5, 6, 10], 
 				customStatuses: [
 					{title: 'Not Started', 	includes: [1]},
@@ -110,8 +110,10 @@ function Settings() {
 		jsonRequestModifier: '.json'
 	}
 
+
 	this.appSettings = {
-		appStatus: 'testing'
+		appStatus: 'testing',
+		dbUri: 'http://speradze:5984/db/'
 	},
 
 	// -------------------------------------------------------------------

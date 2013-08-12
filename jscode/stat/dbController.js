@@ -9,7 +9,8 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 	this.testDbReq = function () {
 		console.log('DEBUG Click');
 	 	
-	 	var requestUri = 'https://junior.iriscouch.com/dashboard_stats/my_id?callback=?';
+	 	var requestUri = appSettings.dbUri + 'doc1';
+	 	// var requestUri = 'https://junior.iriscouch.com/dashboard_stats/my_id';
 	 	// var requestUri = 'https://junior:eloisre@junior.cloudant.com/dashboard_stats/my_id_1?callback=?';
 
 		function callback(data) {
@@ -21,6 +22,7 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 	}
 
 	function dbRequest(requestUri, requestParams, callback) {
+		console.log('dbRequest..');
 		$.ajax({
 			url: requestUri,
 			type: "GET",
