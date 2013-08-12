@@ -20,31 +20,33 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 
 		// dbRequest('GET', null, callback);
 		// debug_createNewDoc();
-		saveSnapshot();
+		var newSnapshot = createSnapshotObject('DEBUG', '462', '1', '1', 'VAL_' + moment().format('hh:mm:ss') );
+		saveSnapshot(newSnapshot);
 		
 	}
 
 	this.saveVersion = function(project, version) {
-		   //      for (var it=0; it<project.issueTrackers.length; it++) {
+		for (var it=0; it<project.issueTrackers.length; it++) {
+			var columns = project.customStatuses;
+			for (cs in columns) {
+				var trackerId = project.issueTrackers[it];
+				var groupName = columns[cs].title;
+				var issues = version.getIssuesByCustomStatusAndTracker(groupName, trackerId).length;
 
-					// var columns = project.customStatuses;
-					// var columnCounter = 0;
-					// for (cs in columns) {
-					// 	columnCounter++;
+				var snapshot = createSnapshotObject(project.id, 
+													version.id, 
+													trackerId, 
+													groupName, 
+													issues);
+				saveSnapshot(snapshot);
+			}		        	
+		}
 
-					// 	var groupName = columns[cs].title;
-					// 	var issues = version.getIssuesByCustomStatusAndTracker(groupName, trackerId);
-
-					// 	console.log('-- Creating cell for custom status: ' + groupName);
-					// 	rowNode.append( createDataCell(issues, rowCounter, columnCounter, trackerName + ' / ' + groupName) );
-					// }		        	
 	}
 
 
-	function saveSnapshot () {
-		// create
-		var newSnapshot = createSnapshotObject('pkserver', '462', '1', '1', 'VAL_' + moment().format('hh:mm:ss') );
-		
+	function saveSnapshot (s) {
+	
 		function writeToDb (snapshot, rev) {
 			console.log('writeToDb: ' + snapshot._id);
 			console.log('writeToDb rev: ' + rev);
@@ -61,7 +63,7 @@ function DbController(userSettings, appSettings, redmineSettings, eventHandler) 
 		}	
 
 		// Check doc
-		debug_checkDoc(newSnapshot, writeToDb);
+		debug_checkDoc(s, writeToDb);
 	}
 
 	
